@@ -356,7 +356,7 @@ class ZeroShotFraudEngine {
     let platform = null;
     if (textLower.includes("telegram")) platform = "Telegram";
     else if (textLower.includes("whatsapp")) platform = "WhatsApp";
-    else if (textLower.includes("phone") || textLower.includes("call")) platform = "Phone Call";
+    else if (/\b(phone|call|calls|calling)\b/i.test(narrativeText)) platform = "Phone Call";
     else if (textLower.includes("email")) platform = "Email";
     else if (textLower.includes("instagram")) platform = "Instagram";
     else if (textLower.includes("facebook") || textLower.includes("marketplace")) platform = "Facebook Marketplace";
@@ -371,11 +371,31 @@ class ZeroShotFraudEngine {
     else if (textLower.includes("yield") || textLower.includes("return") || textLower.includes("ponzi") || textLower.includes("arbitrage")) promisedService = "Guaranteed Investment Yield";
     else if (textLower.includes("escrow") || textLower.includes("house") || textLower.includes("title")) promisedService = "Real Estate Property Title";
 
-    // 4. Incident Date & Reference (Strictly NULL unless explicitly present)
-    let incidentDate = entities.dates.length > 0 ? entities.dates[0] : null;
+    // 4. Incident Date & Reference (Strictly NULL unless explicitly present in transaction/incident context)
+    let incidentDate = null;
+    if (entities.dates.length > 0) {
+      const candidateDate = entities.dates[0];
+      const dateLower = candidateDate.toLowerCase();
+      const dateIdx = textLower.indexOf(dateLower);
+      if (dateIdx !== -1) {
+        const surroundingText = textLower.substring(Math.max(0, dateIdx - 40), Math.min(textLower.length, dateIdx + candidateDate.length + 40));
+        if (surroundingText.includes("turned") || surroundingText.includes("birthday") || surroundingText.includes("born") || surroundingText.includes("years old")) {
+          incidentDate = null;
+        } else {
+          incidentDate = candidateDate;
+        }
+      } else {
+        incidentDate = candidateDate;
+      }
+    }
     let transactionRef = null;
-    const refMatch = narrativeText.match(/\b(utr|txhash|rrn|ref|reference)\s*[:#]?\s*([a-z0-9\-]+)\b/i);
-    if (refMatch) transactionRef = refMatch[0];
+    const refMatch = narrativeText.match(/\b(utr|txhash|rrn|ref|reference)\s*[:#]?\s*([a-z0-9\-]{5,})\b/i);
+    if (refMatch) {
+      const candidateVal = refMatch[2].toLowerCase();
+      if (/\d/.test(candidateVal) && !["transaction", "reference", "details", "number", "available"].includes(candidateVal)) {
+        transactionRef = refMatch[0];
+      }
+    }
 
     // 5. Personal Information Requested
     const personalInfo = [];
