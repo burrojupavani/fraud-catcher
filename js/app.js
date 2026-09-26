@@ -116,12 +116,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // Global switchTab helper
+  function switchTab(targetTab) {
+    if (!targetTab) return;
+    state.activeTab = targetTab;
+
+    const navButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    navButtons.forEach(b => {
+      if (b.getAttribute('data-tab') === targetTab) {
+        b.classList.add('active', 'text-cyan-400');
+        b.classList.remove('text-slate-400');
+      } else {
+        b.classList.remove('active', 'text-cyan-400');
+        b.classList.add('text-slate-400');
+      }
+    });
+
+    tabPanels.forEach(panel => {
+      if (panel.id === `tab-${targetTab}`) {
+        panel.classList.remove('hidden');
+      } else {
+        panel.classList.add('hidden');
+      }
+    });
+
+    if (targetTab === 'sandbox' || targetTab === 'agency') {
+      setTimeout(renderCharts, 100);
+    }
+  }
+  window.switchTab = switchTab;
+
   // Theme Toggle Handler
   function initThemeToggle() {
     const themeBtn = document.getElementById('theme-toggle-btn');
+    if (!themeBtn) return;
+
     themeBtn.addEventListener('click', () => {
       state.theme = state.theme === 'dark' ? 'light' : 'dark';
       document.body.setAttribute('data-theme', state.theme);
+      document.documentElement.setAttribute('data-theme', state.theme);
+
+      if (state.theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+
       themeBtn.innerHTML = state.theme === 'dark' 
         ? `<i class="fa-solid fa-sun text-amber-400 text-lg"></i>` 
         : `<i class="fa-solid fa-moon text-indigo-500 text-lg"></i>`;
@@ -131,29 +173,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Tab Navigation Handler
   function initNavigationTabs() {
-    const navButtons = document.querySelectorAll('.tab-btn');
-    const tabPanels = document.querySelectorAll('.tab-panel');
-
-    navButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetTab = btn.getAttribute('data-tab');
-        state.activeTab = targetTab;
-
-        navButtons.forEach(b => b.classList.remove('active', 'text-cyan-400', 'border-b-2', 'border-cyan-400'));
-        btn.classList.add('active', 'text-cyan-400');
-
-        tabPanels.forEach(panel => {
-          if (panel.id === `tab-${targetTab}`) {
-            panel.classList.remove('hidden');
-          } else {
-            panel.classList.add('hidden');
-          }
-        });
-
-        if (targetTab === 'sandbox' || targetTab === 'agency') {
-          setTimeout(renderCharts, 100);
-        }
-      });
+    document.addEventListener('click', (e) => {
+      const tabTarget = e.target.closest('[data-tab]');
+      if (tabTarget) {
+        e.preventDefault();
+        const targetTab = tabTarget.getAttribute('data-tab');
+        switchTab(targetTab);
+      }
     });
   }
 
@@ -1099,6 +1125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function escapeHtml(text) {
+    if (!text || typeof text !== 'string') return text || '';
     return text
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
@@ -1106,4 +1133,5 @@ document.addEventListener('DOMContentLoaded', async () => {
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
   }
+  window.escapeHtml = escapeHtml;
 });
