@@ -1,0 +1,304 @@
+﻿{
+    "known":  [
+                  {
+                      "id":  "known_01",
+                      "name":  "Fake E-Commerce Product Purchase",
+                      "type":  "KNOWN",
+                      "text":  "On August 10, 2026, I ordered a camera online for $450 via debit card. I received an order receipt and tracking number showing delivered to a different state. The merchant never shipped the item and stopped responding.",
+                      "predicted_category":  "Algorithmic Dark Pattern \u0026 Hidden Subscription Loophole",
+                      "top_score":  0.28532777744652316,
+                      "second_score":  0.27398264921364057,
+                      "second_category":  "E-Commerce Non-Delivery \u0026 Marketplace Seller Scam",
+                      "match_status":  "MATCHED",
+                      "confidence_pct":  29,
+                      "readiness":  "INCOMPLETE",
+                      "missing_info":  [
+                                           "Transaction / Reference ID (UTR / IMAD)",
+                                           "Recipient details / Suspect phone / handle"
+                                       ]
+                  },
+                  {
+                      "id":  "known_02",
+                      "name":  "Unauthorized Financial Transaction",
+                      "type":  "KNOWN",
+                      "text":  "I noticed three unauthorized transfers of $500 each sent from my bank account to an unknown recipient via Zelle on September 1. I never initiated or authorized these transactions.",
+                      "predicted_category":  "Low Semantic Match / Potentially Unseen Fraud Scenario",
+                      "top_score":  0.19371702557632303,
+                      "second_score":  0.18331648747869367,
+                      "second_category":  "Algorithmic Dark Pattern \u0026 Hidden Subscription Loophole",
+                      "match_status":  "LOW_MATCH_POTENTIALLY_NOVEL",
+                      "confidence_pct":  19,
+                      "readiness":  "INCOMPLETE",
+                      "missing_info":  [
+                                           "Transaction / Reference ID (UTR / IMAD)",
+                                           "Recipient details / Suspect phone / handle",
+                                           "Screenshots / Chat history evidence"
+                                       ]
+                  },
+                  {
+                      "id":  "known_03",
+                      "name":  "Deceptive Subscription Trap",
+                      "type":  "KNOWN",
+                      "text":  "I signed up for a $1 trial of an online service. They automatically enrolled me into a $99/month recurring plan without clear disclosure and hid the cancellation button.",
+                      "predicted_category":  "Algorithmic Dark Pattern \u0026 Hidden Subscription Loophole",
+                      "top_score":  0.2803758625507167,
+                      "second_score":  0.17303137240556465,
+                      "second_category":  "E-Commerce Non-Delivery \u0026 Marketplace Seller Scam",
+                      "match_status":  "MATCHED",
+                      "confidence_pct":  28,
+                      "readiness":  "INCOMPLETE",
+                      "missing_info":  [
+                                           "Transaction date",
+                                           "Transaction / Reference ID (UTR / IMAD)",
+                                           "Recipient details / Suspect phone / handle",
+                                           "Screenshots / Chat history evidence"
+                                       ]
+                  }
+              ],
+    "unseen":  [
+                   {
+                       "id":  "unseen_01",
+                       "name":  "Gaming Community Seller Disappears After Payment",
+                       "type":  "UNSEEN",
+                       "text":  "A person contacted me through a gaming community and offered a limited-edition console for ₹30,000. I transferred the funds through UPI, and immediately afterward their account disappeared and they stopped responding.",
+                       "predicted_category":  "E-Commerce Non-Delivery \u0026 Marketplace Seller Scam",
+                       "top_score":  0.2563721068241891,
+                       "second_score":  0.1845196018647774,
+                       "second_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                       "match_status":  "MATCHED",
+                       "confidence_pct":  26,
+                       "readiness":  "INCOMPLETE",
+                       "missing_info":  [
+                                            "Transaction date",
+                                            "Transaction / Reference ID (UTR / IMAD)",
+                                            "Recipient details / Suspect phone / handle",
+                                            "Screenshots / Chat history evidence"
+                                        ]
+                   },
+                   {
+                       "id":  "unseen_02",
+                       "name":  "Fake Freelance Certification Fee",
+                       "type":  "UNSEEN",
+                       "text":  "I found a freelance design opportunity through an online community. They asked me to pay ₹3,500 for a mandatory verification certificate before starting work. After I paid, the account disappeared and the website stopped working.",
+                       "predicted_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                       "top_score":  0.2401375287446957,
+                       "second_score":  0.19904564570303407,
+                       "second_category":  "E-Commerce Non-Delivery \u0026 Marketplace Seller Scam",
+                       "match_status":  "MATCHED",
+                       "confidence_pct":  24,
+                       "readiness":  "INCOMPLETE",
+                       "missing_info":  [
+                                            "Transaction date",
+                                            "Transaction / Reference ID (UTR / IMAD)",
+                                            "Recipient details / Suspect phone / handle",
+                                            "Screenshots / Chat history evidence"
+                                        ]
+                   },
+                   {
+                       "id":  "unseen_03",
+                       "name":  "Fake Internship Onboarding Fee",
+                       "type":  "UNSEEN",
+                       "text":  "I received an acceptance letter for a remote software internship. The coordinator instructed me to wire $250 for mandatory security credentials and onboarding software before my start date. After sending the money, all communication ceased.",
+                       "predicted_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                       "top_score":  0.2687228583054367,
+                       "second_score":  0.1503099964082411,
+                       "second_category":  "Algorithmic Dark Pattern \u0026 Hidden Subscription Loophole",
+                       "match_status":  "MATCHED",
+                       "confidence_pct":  27,
+                       "readiness":  "INCOMPLETE",
+                       "missing_info":  [
+                                            "Transaction date",
+                                            "Transaction / Reference ID (UTR / IMAD)",
+                                            "Recipient details / Suspect phone / handle",
+                                            "Screenshots / Chat history evidence"
+                                        ]
+                   },
+                   {
+                       "id":  "unseen_04",
+                       "name":  "AI-Generated Voice Impersonation Requesting Money",
+                       "type":  "UNSEEN",
+                       "text":  "I received a phone call sounding exactly like my brother crying saying he was in jail after a car crash and needed $4,000 immediately. I wired the money before realizing his voice was synthesized.",
+                       "predicted_category":  "Low Semantic Match / Potentially Unseen Fraud Scenario",
+                       "top_score":  0.168123041065351,
+                       "second_score":  0.1637189193284665,
+                       "second_category":  "Algorithmic Dark Pattern \u0026 Hidden Subscription Loophole",
+                       "match_status":  "LOW_MATCH_POTENTIALLY_NOVEL",
+                       "confidence_pct":  17,
+                       "readiness":  "PARTIALLY_READY",
+                       "missing_info":  [
+                                            "Transaction date",
+                                            "Transaction / Reference ID (UTR / IMAD)",
+                                            "Recipient details / Suspect phone / handle",
+                                            "Screenshots / Chat history evidence"
+                                        ]
+                   },
+                   {
+                       "id":  "unseen_05",
+                       "name":  "Fake Rental Deposit Scam",
+                       "type":  "UNSEEN",
+                       "text":  "I found an apartment listing online and contacted the landlord. He claimed to be out of the country and asked for a $1,200 holding deposit via bank wire to mail me the keys. Upon wiring the funds, the listing was taken down and the landlord blocked my number.",
+                       "predicted_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                       "top_score":  0.24678725008979824,
+                       "second_score":  0.18340910817116526,
+                       "second_category":  "Unauthorized Bank Impersonation \u0026 Instant Payment Extortion",
+                       "match_status":  "MATCHED",
+                       "confidence_pct":  25,
+                       "readiness":  "INCOMPLETE",
+                       "missing_info":  [
+                                            "Transaction date",
+                                            "Transaction / Reference ID (UTR / IMAD)",
+                                            "Recipient details / Suspect phone / handle",
+                                            "Screenshots / Chat history evidence"
+                                        ]
+                   },
+                   {
+                       "id":  "unseen_06",
+                       "name":  "Remote Technical Support Scam",
+                       "type":  "UNSEEN",
+                       "text":  "A pop-up appeared on my screen warning of a computer virus and listing a support phone number. When I called, the technician convinced me to install AnyDesk remote access software, then transferred $2,800 from my online banking account.",
+                       "predicted_category":  "Tech Support Impersonation \u0026 Remote Access Hack",
+                       "top_score":  0.25256181622670393,
+                       "second_score":  0.19476377494334926,
+                       "second_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                       "match_status":  "MATCHED",
+                       "confidence_pct":  25,
+                       "readiness":  "INCOMPLETE",
+                       "missing_info":  [
+                                            "Transaction date",
+                                            "Transaction / Reference ID (UTR / IMAD)",
+                                            "Recipient details / Suspect phone / handle",
+                                            "Screenshots / Chat history evidence"
+                                        ]
+                   }
+               ],
+    "ablated":  [
+                    {
+                        "id":  "ablated_01",
+                        "original_id":  "unseen_01",
+                        "name":  "Gaming Community Seller (Ablated Keywords)",
+                        "text":  "Someone met me in an online gaming group offering a console for ₹30,000. I sent the money over UPI, and right after that they deleted their profile and I received nothing.",
+                        "predicted_category":  "E-Commerce Non-Delivery \u0026 Marketplace Seller Scam",
+                        "original_score":  0.2563721068241891,
+                        "ablated_score":  0.25269244835546606,
+                        "score_diff":  -0.0037,
+                        "classification_preserved":  true
+                    },
+                    {
+                        "id":  "ablated_02",
+                        "original_id":  "unseen_02",
+                        "name":  "Freelance Certification (Ablated Keywords)",
+                        "text":  "Someone contacted me online about paid work and asked me to send ₹3,500 for a mandatory document before I could begin. Once I sent the funds, the user was unreachable.",
+                        "predicted_category":  "Algorithmic Dark Pattern \u0026 Hidden Subscription Loophole",
+                        "original_score":  0.2401375287446957,
+                        "ablated_score":  0.24490338007200999,
+                        "score_diff":  0.0048,
+                        "classification_preserved":  false
+                    },
+                    {
+                        "id":  "ablated_03",
+                        "original_id":  "unseen_03",
+                        "name":  "Internship Onboarding (Ablated Keywords)",
+                        "text":  "I applied for a remote training position and the coordinator told me to wire $250 for setup prior to starting. Following the payment, they no longer answered messages.",
+                        "predicted_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                        "original_score":  0.2687228583054367,
+                        "ablated_score":  0.304608769113009,
+                        "score_diff":  0.0359,
+                        "classification_preserved":  true
+                    }
+                ],
+    "paraphrased":  [
+                        {
+                            "group":  "Freelance Certification Scam",
+                            "version":  "A",
+                            "id":  "paraphrase_01_a",
+                            "text":  "I paid a fee to obtain a job opportunity, but the recruiter disappeared.",
+                            "predicted_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                            "top_score":  0.26159639994761125,
+                            "score_pct":  26
+                        },
+                        {
+                            "group":  "Freelance Certification Scam",
+                            "version":  "B",
+                            "id":  "paraphrase_01_b",
+                            "text":  "They asked me for money before giving me employment and stopped responding after receiving it.",
+                            "predicted_category":  "Low Semantic Match / Potentially Unseen Fraud Scenario",
+                            "top_score":  0.21340462041325178,
+                            "score_pct":  21
+                        },
+                        {
+                            "group":  "Freelance Certification Scam",
+                            "version":  "C",
+                            "id":  "paraphrase_01_c",
+                            "text":  "I transferred money after being promised work, and the person became unreachable.",
+                            "predicted_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                            "top_score":  0.3390988708001501,
+                            "score_pct":  34
+                        },
+                        {
+                            "group":  "Rental Deposit Scam",
+                            "version":  "A",
+                            "id":  "paraphrase_02_a",
+                            "text":  "I wired a deposit to reserve an apartment lease, but the landlord blocked my phone and kept the cash.",
+                            "predicted_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                            "top_score":  0.2819215858073785,
+                            "score_pct":  28
+                        },
+                        {
+                            "group":  "Rental Deposit Scam",
+                            "version":  "B",
+                            "id":  "paraphrase_02_b",
+                            "text":  "The property owner requested holding money upfront before showing the unit, then ghosted me.",
+                            "predicted_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                            "top_score":  0.4378292506962046,
+                            "score_pct":  44
+                        },
+                        {
+                            "group":  "Rental Deposit Scam",
+                            "version":  "C",
+                            "id":  "paraphrase_02_c",
+                            "text":  "I sent rent money to a remote seller who claimed to own the property, but they deleted the ad and left.",
+                            "predicted_category":  "Fake Job Offer \u0026 Registration Fee Extortion",
+                            "top_score":  0.2910902186967684,
+                            "score_pct":  29
+                        },
+                        {
+                            "group":  "Remote Technical Support Scam",
+                            "version":  "A",
+                            "id":  "paraphrase_03_a",
+                            "text":  "A computer pop-up directed me to call tech support, where an agent remotely controlled my PC and stole money.",
+                            "predicted_category":  "Tech Support Impersonation \u0026 Remote Access Hack",
+                            "top_score":  0.3138926935277925,
+                            "score_pct":  31
+                        },
+                        {
+                            "group":  "Remote Technical Support Scam",
+                            "version":  "B",
+                            "id":  "paraphrase_03_b",
+                            "text":  "I permitted a remote screen share session with someone claiming to fix security issues, who then accessed my bank.",
+                            "predicted_category":  "Tech Support Impersonation \u0026 Remote Access Hack",
+                            "top_score":  0.3938108858479048,
+                            "score_pct":  39
+                        },
+                        {
+                            "group":  "Remote Technical Support Scam",
+                            "version":  "C",
+                            "id":  "paraphrase_03_c",
+                            "text":  "Under the guise of malware removal, a fake technician accessed my computer remotely and withdrew my savings.",
+                            "predicted_category":  "Tech Support Impersonation \u0026 Remote Access Hack",
+                            "top_score":  0.7055679952859925,
+                            "score_pct":  71
+                        }
+                    ],
+    "non_fraud":  [
+                      {
+                          "id":  "unknown_01",
+                          "name":  "Non-Fraud Library Book Borrowing",
+                          "text":  "I went to the library yesterday and borrowed two books.",
+                          "predicted_category":  "Unauthorized Bank Impersonation \u0026 Instant Payment Extortion",
+                          "top_score":  0.33621572948122824,
+                          "match_status":  "MATCHED",
+                          "confidence_pct":  34,
+                          "is_novel_or_low_match":  true
+                      }
+                  ]
+}
