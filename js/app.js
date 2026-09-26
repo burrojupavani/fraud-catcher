@@ -163,12 +163,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const analyzeBtn = document.getElementById('analyze-btn');
     const presetSelect = document.getElementById('preset-select');
 
-    Object.keys(presetScenarios).forEach(key => {
-      const opt = document.createElement('option');
-      opt.value = key;
-      opt.textContent = presetScenarios[key].name;
-      presetSelect.appendChild(opt);
-    });
+    if (presetSelect && presetSelect.options.length <= 1) {
+      Object.keys(presetScenarios).forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = presetScenarios[key].name;
+        presetSelect.appendChild(opt);
+      });
+    }
 
     presetSelect.addEventListener('change', (e) => {
       if (e.target.value) {
