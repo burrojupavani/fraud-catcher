@@ -4,7 +4,7 @@
  * conflict handling, missing fact default, unsupported format, and regression tests.
  */
 
-window.runPhase6BExtractionTests = async function() {
+window.runPhase6BExtractionTests = async function(options = {}) {
   console.log("=== STARTING PHASE 6B EVIDENCE EXTRACTION & VERIFICATION TEST SUITE ===");
 
   const results = {
@@ -284,7 +284,7 @@ window.runPhase6BExtractionTests = async function() {
   try {
     let p6aRes = null;
     if (typeof window.runPhase6AEvidenceTests === 'function') {
-      p6aRes = await window.runPhase6AEvidenceTests();
+      p6aRes = await window.runPhase6AEvidenceTests(options);
     }
 
     const passed = p6aRes && p6aRes.all_passed === true;
