@@ -1,0 +1,153 @@
+{
+  "known_cases": [
+    {
+      "id": "known_01",
+      "name": "Fake E-Commerce Product Purchase",
+      "type": "KNOWN",
+      "text": "On August 10, 2026, I ordered a camera online for $450 via debit card. I received an order receipt and tracking number showing delivered to a different state. The merchant never shipped the item and stopped responding."
+    },
+    {
+      "id": "known_02",
+      "name": "Unauthorized Financial Transaction",
+      "type": "KNOWN",
+      "text": "I noticed three unauthorized transfers of $500 each sent from my bank account to an unknown recipient via Zelle on September 1. I never initiated or authorized these transactions."
+    },
+    {
+      "id": "known_03",
+      "name": "Deceptive Subscription Trap",
+      "type": "KNOWN",
+      "text": "I signed up for a $1 trial of an online service. They automatically enrolled me into a $99/month recurring plan without clear disclosure and hid the cancellation button."
+    }
+  ],
+  "unseen_cases": [
+    {
+      "id": "unseen_01",
+      "name": "Gaming Community Seller Disappears After Payment",
+      "type": "UNSEEN",
+      "text": "A person contacted me through a gaming community and offered a limited-edition console for ₹30,000. I transferred the funds through UPI, and immediately afterward their account disappeared and they stopped responding."
+    },
+    {
+      "id": "unseen_02",
+      "name": "Fake Freelance Certification Fee",
+      "type": "UNSEEN",
+      "text": "I found a freelance design opportunity through an online community. They asked me to pay ₹3,500 for a mandatory verification certificate before starting work. After I paid, the account disappeared and the website stopped working."
+    },
+    {
+      "id": "unseen_03",
+      "name": "Fake Internship Onboarding Fee",
+      "type": "UNSEEN",
+      "text": "I received an acceptance letter for a remote software internship. The coordinator instructed me to wire $250 for mandatory security credentials and onboarding software before my start date. After sending the money, all communication ceased."
+    },
+    {
+      "id": "unseen_04",
+      "name": "AI-Generated Voice Impersonation Requesting Money",
+      "type": "UNSEEN",
+      "text": "I received a phone call sounding exactly like my brother crying saying he was in jail after a car crash and needed $4,000 immediately. I wired the money before realizing his voice was synthesized."
+    },
+    {
+      "id": "unseen_05",
+      "name": "Fake Rental Deposit Scam",
+      "type": "UNSEEN",
+      "text": "I found an apartment listing online and contacted the landlord. He claimed to be out of the country and asked for a $1,200 holding deposit via bank wire to mail me the keys. Upon wiring the funds, the listing was taken down and the landlord blocked my number."
+    },
+    {
+      "id": "unseen_06",
+      "name": "Remote Technical Support Scam",
+      "type": "UNSEEN",
+      "text": "A pop-up appeared on my screen warning of a computer virus and listing a support phone number. When I called, the technician convinced me to install AnyDesk remote access software, then transferred $2,800 from my online banking account."
+    }
+  ],
+  "ablated_cases": [
+    {
+      "id": "ablated_01",
+      "original_id": "unseen_01",
+      "name": "Gaming Community Seller (Ablated Keywords)",
+      "type": "ABLATED",
+      "text": "Someone met me in an online gaming group offering a console for ₹30,000. I sent the money over UPI, and right after that they deleted their profile and I received nothing."
+    },
+    {
+      "id": "ablated_02",
+      "original_id": "unseen_02",
+      "name": "Freelance Certification (Ablated Keywords)",
+      "type": "ABLATED",
+      "text": "Someone contacted me online about paid work and asked me to send ₹3,500 for a mandatory document before I could begin. Once I sent the funds, the user was unreachable."
+    },
+    {
+      "id": "ablated_03",
+      "original_id": "unseen_03",
+      "name": "Internship Onboarding (Ablated Keywords)",
+      "type": "ABLATED",
+      "text": "I applied for a remote training position and the coordinator told me to wire $250 for setup prior to starting. Following the payment, they no longer answered messages."
+    }
+  ],
+  "paraphrased_cases": [
+    {
+      "group": "Freelance Certification Scam",
+      "versions": [
+        {
+          "version": "A",
+          "id": "paraphrase_01_a",
+          "text": "I paid a fee to obtain a job opportunity, but the recruiter disappeared."
+        },
+        {
+          "version": "B",
+          "id": "paraphrase_01_b",
+          "text": "They asked me for money before giving me employment and stopped responding after receiving it."
+        },
+        {
+          "version": "C",
+          "id": "paraphrase_01_c",
+          "text": "I transferred money after being promised work, and the person became unreachable."
+        }
+      ]
+    },
+    {
+      "group": "Rental Deposit Scam",
+      "versions": [
+        {
+          "version": "A",
+          "id": "paraphrase_02_a",
+          "text": "I wired a deposit to reserve an apartment lease, but the landlord blocked my phone and kept the cash."
+        },
+        {
+          "version": "B",
+          "id": "paraphrase_02_b",
+          "text": "The property owner requested holding money upfront before showing the unit, then ghosted me."
+        },
+        {
+          "version": "C",
+          "id": "paraphrase_02_c",
+          "text": "I sent rent money to a remote seller who claimed to own the property, but they deleted the ad and left."
+        }
+      ]
+    },
+    {
+      "group": "Remote Technical Support Scam",
+      "versions": [
+        {
+          "version": "A",
+          "id": "paraphrase_03_a",
+          "text": "A computer pop-up directed me to call tech support, where an agent remotely controlled my PC and stole money."
+        },
+        {
+          "version": "B",
+          "id": "paraphrase_03_b",
+          "text": "I permitted a remote screen share session with someone claiming to fix security issues, who then accessed my bank."
+        },
+        {
+          "version": "C",
+          "id": "paraphrase_03_c",
+          "text": "Under the guise of malware removal, a fake technician accessed my computer remotely and withdrew my savings."
+        }
+      ]
+    }
+  ],
+  "non_fraud_cases": [
+    {
+      "id": "unknown_01",
+      "name": "Non-Fraud Library Book Borrowing",
+      "type": "NON_FRAUD",
+      "text": "I went to the library yesterday and borrowed two books."
+    }
+  ]
+}
