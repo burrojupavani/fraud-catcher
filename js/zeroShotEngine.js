@@ -6,6 +6,134 @@
  * Phase 3: Evidence-Guided Formal Complaint Generation & Fact Traceability.
  */
 
+/**
+ * Phase 6A: Central Evidence Registry & Provenance Tracker
+ * Handles victim-provided evidence representation, source traceability,
+ * strict no-hallucination fact representation, and conflict preservation.
+ */
+class EvidenceRegistry {
+  constructor() {
+    this.items = [];
+    this.facts = [];
+    this.counter = 1;
+  }
+
+  reset() {
+    this.items = [];
+    this.facts = [];
+    this.counter = 1;
+  }
+
+  addEvidence({ type = "OTHER", description = "", source = "victim_provided", provided_at = null } = {}) {
+    const validTypes = ["SCREENSHOT", "PDF", "CHAT_EXPORT", "TRANSACTION_RECORD", "IMAGE", "TEXT", "OTHER"];
+    const normalizedType = validTypes.includes(type) ? type : "OTHER";
+    
+    const evidenceId = `E${String(this.counter).padStart(3, '0')}`;
+    this.counter++;
+
+    const item = {
+      evidence_id: evidenceId,
+      type: normalizedType,
+      description: description || "",
+      source: source || "victim_provided",
+      provided_at: provided_at || new Date().toISOString(),
+      extracted_facts: [],
+      provenance: {
+        source_type: "victim_provided",
+        source_reference: evidenceId
+      },
+      verification_status: "UNVERIFIED"
+    };
+
+    this.items.push(item);
+    return item;
+  }
+
+  getEvidence(evidenceId) {
+    return this.items.find(item => item.evidence_id === evidenceId) || null;
+  }
+
+  listEvidence() {
+    return [...this.items];
+  }
+
+  linkEvidenceFact(evidenceId, field, value) {
+    const item = this.getEvidence(evidenceId);
+    if (!item) {
+      throw new Error(`Evidence item '${evidenceId}' not found.`);
+    }
+
+    const resolvedValue = (value !== undefined && value !== null && value !== "") ? value : "NOT_AVAILABLE";
+
+    const factEntry = {
+      field: field,
+      value: resolvedValue,
+      source: evidenceId,
+      source_type: "VICTIM_PROVIDED_EVIDENCE",
+      evidence_type: item.type
+    };
+
+    item.extracted_facts.push({
+      field: field,
+      value: resolvedValue
+    });
+
+    this.recordFact(factEntry);
+    return factEntry;
+  }
+
+  linkFact(field, value, source, sourceType) {
+    const validSources = ["VICTIM_NARRATIVE", "CASE_COMPLETION_FORM", "VICTIM_PROVIDED_EVIDENCE", "SYSTEM_INFERENCE"];
+    const normalizedSourceType = validSources.includes(sourceType) ? sourceType : "VICTIM_NARRATIVE";
+    const resolvedValue = (value !== undefined && value !== null && value !== "") ? value : "NOT_AVAILABLE";
+
+    const factEntry = {
+      field: field,
+      value: resolvedValue,
+      source: source,
+      source_type: normalizedSourceType
+    };
+
+    this.recordFact(factEntry);
+    return factEntry;
+  }
+
+  recordFact(factEntry) {
+    this.facts.push(factEntry);
+  }
+
+  getFacts(field = null) {
+    if (!field) return [...this.facts];
+    return this.facts.filter(f => f.field === field);
+  }
+
+  getConflicts(field) {
+    const fieldFacts = this.getFacts(field);
+    if (fieldFacts.length <= 1) return [];
+
+    const values = new Set(fieldFacts.map(f => String(f.value)));
+    if (values.size > 1) {
+      return fieldFacts.map(f => ({
+        ...f,
+        status: "CONFLICT"
+      }));
+    }
+    return [];
+  }
+
+  getAllConflicts() {
+    const fields = new Set(this.facts.map(f => f.field));
+    const conflicts = {};
+    for (const field of fields) {
+      const conf = this.getConflicts(field);
+      if (conf.length > 0) {
+        conflicts[field] = conf;
+      }
+    }
+    return conflicts;
+  }
+}
+
 class ZeroShotFraudEngine {
   constructor() {
     this.modelName = 'Xenova/nli-deberta-v3-small';
@@ -14,6 +142,9 @@ class ZeroShotFraudEngine {
     this.isLoading = false;
     this.isLoaded = false;
     this.loadError = null;
+
+    // Phase 6A: Evidence Registry
+    this.evidenceRegistry = new EvidenceRegistry();
 
     // Natural Language Candidate Hypotheses & Associated Metadata
     this.taxonomyHypotheses = [
@@ -950,6 +1081,42 @@ I declare that the information provided above is true and accurate to the best o
         readiness: "Phase 5 Active"
       }
     ];
+  }
+
+  // Phase 6A Evidence Registry Delegates
+  addEvidence(evidenceObj) {
+    return this.evidenceRegistry.addEvidence(evidenceObj);
+  }
+
+  getEvidence(evidenceId) {
+    return this.evidenceRegistry.getEvidence(evidenceId);
+  }
+
+  listEvidence() {
+    return this.evidenceRegistry.listEvidence();
+  }
+
+  linkEvidenceFact(evidenceId, field, value) {
+    return this.evidenceRegistry.linkEvidenceFact(evidenceId, field, value);
+  }
+
+  linkFact(field, value, source, sourceType) {
+    return this.evidenceRegistry.linkFact(field, value, source, sourceType);
+  }
+
+  getCaseProvenance(field = null) {
+    return this.evidenceRegistry.getFacts(field);
+  }
+
+  getCaseConflicts(field = null) {
+    if (field) {
+      return this.evidenceRegistry.getConflicts(field);
+    }
+    return this.evidenceRegistry.getAllConflicts();
+  }
+
+  resetEvidenceRegistry() {
+    this.evidenceRegistry.reset();
   }
 
   getEmptyAnalysisResult() {
