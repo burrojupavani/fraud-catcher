@@ -767,22 +767,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     }));
   }
 
-  // Evidence Locker & Timeline
+  // Evidence Locker & Timeline (Phase 6C OCR & Verification Enabled)
   function initEvidenceLocker() {
     const uploadArea = document.getElementById('evidence-upload-dropzone');
     const uploadInput = document.getElementById('evidence-file-input');
 
     if (uploadArea && uploadInput) {
       uploadArea.addEventListener('click', () => uploadInput.click());
-      uploadInput.addEventListener('change', (e) => {
-        Array.from(e.target.files).forEach(file => {
-          state.evidenceItems.push({
+      uploadInput.addEventListener('change', async (e) => {
+        for (const file of Array.from(e.target.files)) {
+          const item = {
+            id: `E${String(state.evidenceItems.length + 201).padStart(3, '0')}`,
             name: file.name,
             size: `${(file.size / 1024).toFixed(1)} KB`,
             type: file.type || 'Document/Image',
-            dateAdded: new Date().toLocaleDateString()
-          });
-        });
+            dateAdded: new Date().toLocaleDateString(),
+            rawFile: file
+          };
+          state.evidenceItems.push(item);
+          if (window.zeroShotEngine && typeof window.zeroShotEngine.processEvidenceFile === 'function') {
+            await window.zeroShotEngine.processEvidenceFile(file);
+          }
+        }
         renderEvidenceLocker();
       });
     }
@@ -826,17 +832,65 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     state.evidenceItems.forEach((file, idx) => {
+      const evId = file.id || `E${201 + idx}`;
+      const report = window.zeroShotEngine && window.zeroShotEngine.evidenceOcrEngine ? window.zeroShotEngine.evidenceOcrEngine.getQualityReport(evId) : null;
+      const status = report ? report.processing_status : "PROCESSED";
+      const facts = report ? (report.extracted_facts || []) : [];
+
+      const isSuccess = status === "PROCESSED";
+      const isFailed = status === "OCR_FAILED";
+      const isUnsupported = status === "UNSUPPORTED_FORMAT";
+
+      const badgeColor = isSuccess ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : (isFailed ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40');
+
       const card = document.createElement('div');
-      card.className = 'flex items-center justify-between p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300';
+      card.className = 'p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2';
+      
+      let factsHtml = '';
+      if (facts.length > 0) {
+        factsHtml = `
+          <div class="pt-2 border-t border-slate-800/80 space-y-1">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Extracted Facts (OCR Provenance):</span>
+            <div class="space-y-1">
+              ${facts.map(f => {
+                const isConfirmed = f.verification_status === "USER_CONFIRMED";
+                return `
+                  <div class="flex items-center justify-between p-1.5 rounded bg-slate-950 border border-slate-800 text-[11px]">
+                    <div>
+                      <span class="font-semibold text-cyan-300">${f.field}:</span>
+                      <span class="text-slate-200 font-mono ml-1">${f.value}</span>
+                      <span class="text-[9px] text-slate-500 ml-1">(conf: ${f.extraction_confidence})</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                      <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold ${isConfirmed ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'}">${f.verification_status}</span>
+                      ${!isConfirmed ? `<button class="px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white confirm-fact-btn" data-ev="${evId}" data-field="${f.field}">Confirm</button>` : ''}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
       card.innerHTML = `
-        <div class="flex items-center space-x-3">
-          <i class="fa-solid fa-file-shield text-cyan-400 text-base"></i>
-          <div>
-            <div class="font-semibold text-slate-200">${file.name}</div>
-            <div class="text-[11px] text-slate-500">${file.size} • ${file.type}</div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-file-shield text-cyan-400 text-base"></i>
+            <div>
+              <div class="font-semibold text-slate-200">${file.name}</div>
+              <div class="text-[11px] text-slate-500">${file.size} • ${file.type}</div>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${badgeColor}">${status}</span>
+            <button class="text-rose-400 hover:text-rose-300 remove-ev-btn" data-index="${idx}"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>
-        <button class="text-rose-400 hover:text-rose-300 remove-ev-btn" data-index="${idx}"><i class="fa-solid fa-trash"></i></button>
+        ${factsHtml}
+        <div class="text-[9px] text-slate-500 italic border-t border-slate-800/60 pt-1">
+          OCR extraction does not verify authenticity or ownership.
+        </div>
       `;
       container.appendChild(card);
     });
@@ -845,6 +899,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       const idx = e.currentTarget.dataset.index;
       state.evidenceItems.splice(idx, 1);
       renderEvidenceLocker();
+    }));
+
+    container.querySelectorAll('.confirm-fact-btn').forEach(b => b.addEventListener('click', e => {
+      const evId = e.currentTarget.dataset.ev;
+      const field = e.currentTarget.dataset.field;
+      if (window.zeroShotEngine && typeof window.zeroShotEngine.confirmOcrFact === 'function') {
+        window.zeroShotEngine.confirmOcrFact(evId, field);
+        renderEvidenceLocker();
+      }
     }));
   }
 
