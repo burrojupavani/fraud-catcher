@@ -1119,6 +1119,21 @@ I declare that the information provided above is true and accurate to the best o
     this.evidenceRegistry.reset();
   }
 
+  // Phase 6B Evidence Extractor Delegates
+  extractEvidenceFacts(evidenceIdOrItem, textContent = null) {
+    if (!this.evidenceExtractor) {
+      this.evidenceExtractor = new EvidenceExtractor(this.evidenceRegistry);
+    }
+    return this.evidenceExtractor.extractEvidenceFacts(evidenceIdOrItem, textContent);
+  }
+
+  evaluateFactConflicts(field, narrativeValue, evidenceValue) {
+    if (!this.evidenceExtractor) {
+      this.evidenceExtractor = new EvidenceExtractor(this.evidenceRegistry);
+    }
+    return this.evidenceExtractor.evaluateFactConflicts(field, narrativeValue, evidenceValue);
+  }
+
   getEmptyAnalysisResult() {
     return {
       classification_status: "AWAITING_INPUT",
