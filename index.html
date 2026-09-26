@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zero-Shot Consumer Fraud Complaint Assistant | AI Legal Intake & Protection</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Transformers.js Library Import for Genuine Zero-Shot NLI -->
+  <script type="module">
+    import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+    window.transformersPipeline = pipeline;
+    window.transformersEnv = env;
+  </script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              900: '#0b0f19',
+              800: '#111827',
+              700: '#1e293b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="cyber-grid text-slate-100 min-h-screen flex flex-col">
+
+  <!-- TOP HEADER BAR -->
+  <header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+        <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+      </div>
+      <div>
+        <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center space-x-2">
+          <span>ZERO-SHOT CONSUMER FRAUD ASSISTANT</span>
+          <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">Genuine NLI Engine</span>
+        </h1>
+        <p class="text-xs text-slate-400 hidden sm:block">Pretrained DeBERTa NLI zero-shot generalization across novel, unseen fraud vectors</p>
+      </div>
+    </div>
+
+    <!-- Right Controls & Model Status Indicator -->
+    <div class="flex items-center space-x-3">
+      <div id="model-status-badge" class="hidden lg:flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-xs font-mono">
+        <span id="model-status-ping" class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+        <span class="text-slate-300">NLI Model: <strong id="model-status-text" class="text-amber-400">LOADING AI MODEL...</strong></span>
+      </div>
+      <button id="theme-toggle-btn" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700">
+        <i class="fa-solid fa-sun text-amber-400 text-lg"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO BANNER SECTION -->
+  <div class="relative w-full overflow-hidden border-b border-slate-800 bg-slate-950">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 items-center min-h-[220px]">
+      <div class="lg:col-span-7 p-6 sm:p-10 space-y-3 z-10">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+          <i class="fa-solid fa-brain-circuit text-cyan-400"></i>
+          <span>Genuine Pretrained NLI Model Inference (Transformers.js)</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight">
+          Protect Victims of <span class="gradient-text">Unseen & Novel Consumer Fraud</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+          Traditional fraud systems fail when encountering brand-new scams. Our zero-shot inference engine uses a pretrained DeBERTa NLI model to evaluate narrative premises against natural language candidate hypotheses without fine-tuning or keyword matching rules.
+        </p>
+      </div>
+      <div class="lg:col-span-5 relative hidden lg:block h-full min-h-[220px]">
+        <img src="hero_banner.jpg" alt="AI Neural Shield" class="w-full h-full object-cover object-center opacity-85 mask-gradient">
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/40 to-transparent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-[65px] z-40 px-4 sm:px-8">
+    <div class="max-w-7xl mx-auto flex space-x-2 sm:space-x-6 overflow-x-auto py-2 scrollbar-none">
+      <button data-tab="intake" class="tab-btn active px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-2 whitespace-nowrap text-cyan-400">
+        <i class="fa-solid fa-comments"></i>
+        <span>1. Intake & Analysis</span>
+      </button>
+      <button data-tab="sandbox" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-400 hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-network-wired text-indigo-400"></i>
+        <span>2. Neural Sandbox</span>
+      </button>
+      <button data-tab="form" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-400 hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-list-check text-emerald-400"></i>
+        <span>3. Adaptive Form & Losses</span>
+      </button>
+      <button data-tab="evidence" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-400 hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-folder-open text-amber-400"></i>
+        <span>4. Evidence & Timeline</span>
+      </button>
+      <button data-tab="agency" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-400 hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-building-columns text-purple-400"></i>
+        <span>5. Agency Matrix</span>
+      </button>
+      <button data-tab="affidavit" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-400 hover:text-slate-200 flex items-center space-x-2 whitespace-nowrap">
+        <i class="fa-solid fa-file-signature text-rose-400"></i>
+        <span>6. Formal Affidavit</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+
+    <!-- TAB 1: INTAKE & ANALYSIS -->
+    <section id="tab-intake" class="tab-panel space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Input Panel -->
+        <div class="lg:col-span-7 glass-panel p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-feather text-cyan-400"></i>
+              <span>Victim Fraud Narrative Intake</span>
+            </h3>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs text-slate-400">Test Scenarios:</span>
+              <select id="preset-select" class="px-2.5 py-1 text-xs rounded-lg bg-slate-900 border border-slate-700 text-slate-200 outline-none focus:border-cyan-500">
+                <option value="">-- Choose Test Case --</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-400">
+            Describe the fraudulent event in natural plain text. You can include dates, dollar amounts, communication methods, caller IDs, website links, or transaction hashes. The zero-shot NLI model will evaluate the narrative against natural language candidate hypotheses.
+          </p>
+
+          <div class="relative">
+            <textarea id="narrative-input" rows="10" class="w-full p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm font-sans placeholder-slate-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all leading-relaxed" placeholder="Type or paste the victim complaint details here..."></textarea>
+            <div class="absolute bottom-3 right-3 text-xs text-slate-500 font-mono">
+              <span id="char-count">0</span> characters
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <button id="analyze-btn" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-microchip"></i>
+              <span>Run Zero-Shot Model Inference</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: Live Zero-Shot Classification Results -->
+        <div class="lg:col-span-5 space-y-6">
+          
+          <!-- Inferred Category Card -->
+          <div class="glass-panel p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Model Entailment Result</h4>
+              <span id="novelty-badge" class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                Genuine NLI Model
+              </span>
+            </div>
+
+            <div>
+              <span id="primary-category-badge" class="text-xs font-mono text-cyan-400 block mb-1">Emerging Cyber-Biometric Fraud</span>
+              <h3 id="primary-category-label" class="text-lg font-extrabold text-white leading-snug">AI Voice Cloning / Deepfake Extortion & Wire Fraud</h3>
+            </div>
+
+            <!-- Confidence Bar -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-400">NLI Model Probability Score</span>
+                <span id="confidence-meter-text" class="font-bold text-cyan-400">88%</span>
+              </div>
+              <div class="meter-bar">
+                <div id="confidence-meter-bar" class="meter-fill bg-gradient-to-r from-cyan-500 to-indigo-500" style="width: 88%;"></div>
+              </div>
+            </div>
+
+            <!-- Match Strength Index -->
+            <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-semibold text-slate-300 block">Semantic Match Strength</span>
+                <span class="text-[11px] text-slate-400">Strongest model-supported hypothesis</span>
+              </div>
+              <div class="text-right">
+                <span id="novelty-score-text" class="text-lg font-black text-cyan-400 font-mono">88%</span>
+              </div>
+            </div>
+            <div class="meter-bar">
+              <div id="novelty-meter-bar" class="meter-fill bg-gradient-to-r from-cyan-500 to-indigo-500" style="width: 88%;"></div>
+            </div>
+          </div>
+
+          <!-- Extracted Forensic Entities Card -->
+          <div class="glass-panel p-6 space-y-3">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 pb-2">
+              <i class="fa-solid fa-key text-emerald-400 mr-1.5"></i> Extracted Forensic Case Facts
+            </h4>
+            <div id="extracted-entities-list" class="flex flex-wrap gap-2 pt-1">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Evidence Mapping Card -->
+          <div class="glass-panel p-6 space-y-3">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center justify-between">
+              <span><i class="fa-solid fa-map-location-dot text-amber-400 mr-1.5"></i> Evidence Map</span>
+              <span class="text-[10px] text-slate-500 font-normal">Verified Case Artifacts</span>
+            </h4>
+            <div id="evidence-map-container" class="space-y-2 pt-1">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Phase 3: Case Completion & Missing Field Intake Panel -->
+      <div id="case-completion-panel" class="glass-panel p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-user-pen text-amber-400"></i>
+              <span>Phase 3 — Case Completion Intake</span>
+            </h3>
+            <p class="text-xs text-slate-400">Provide missing case information if available to increase complaint readiness</p>
+          </div>
+          <div id="readiness-explanation-box" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300">
+            <!-- Readiness status & explanation rendered via JS -->
+          </div>
+        </div>
+
+        <div id="missing-fields-completion-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <!-- Dynamically populated missing field input cards with "I don't have this information" toggles -->
+        </div>
+
+        <div class="text-[11px] text-slate-500 italic pt-2 border-t border-slate-800/80 flex items-center justify-between">
+          <span><i class="fa-solid fa-shield text-slate-400 mr-1"></i> Strict No-Hallucination Policy: Fields left blank or marked unavailable are rendered as "Not available".</span>
+          <span class="text-amber-400 font-semibold">* This is NOT a legal determination.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: NEURAL SANDBOX -->
+    <section id="tab-sandbox" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Bar Chart: Entailment Probability -->
+        <div class="lg:col-span-7 glass-panel p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-chart-simple text-cyan-400"></i>
+              <span>DeBERTa NLI Candidate Entailment Probabilities</span>
+            </h3>
+            <span class="text-xs text-slate-400 font-mono">P(Entailment | Premise)</span>
+          </div>
+          <p class="text-xs text-slate-400">
+            Actual softmax probability scores returned by Xenova/nli-deberta-v3-small for candidate natural language hypotheses.
+          </p>
+          <div class="relative h-64 w-full">
+            <canvas id="candidate-scores-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Radar Chart: Latent Vector Primitives -->
+        <div class="lg:col-span-5 glass-panel p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-compass-drafting text-indigo-400"></i>
+              <span>Latent Vector Radar</span>
+            </h3>
+            <span class="text-xs text-slate-400 font-mono">Decomposed Dimensions</span>
+          </div>
+          <div class="relative h-64 w-full">
+            <canvas id="primitives-radar-chart"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 3: ADAPTIVE DYNAMIC FORM & LOSSES -->
+    <section id="tab-form" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Zero-Shot Dynamic Schema Form -->
+        <div class="lg:col-span-7 glass-panel p-6 space-y-6">
+          <div class="border-b border-slate-800 pb-3">
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-sliders text-emerald-400"></i>
+              <span>Zero-Shot Dynamic Adaptive Fields</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">
+              These fields were generated automatically based on the model's inferred zero-shot classification.
+            </p>
+          </div>
+
+          <div id="dynamic-form-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Dynamic fields rendered here -->
+          </div>
+        </div>
+
+        <!-- Right Column: Financial Loss Calculator -->
+        <div class="lg:col-span-5 glass-panel p-6 space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-calculator text-cyan-400"></i>
+              <span>Itemized Financial Losses</span>
+            </h3>
+            <button id="add-loss-btn" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700">
+              <i class="fa-solid fa-plus mr-1"></i> Add Line Item
+            </button>
+          </div>
+
+          <div id="financial-loss-items" class="space-y-3">
+            <!-- Rendered via JS -->
+          </div>
+
+          <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+            <span class="text-xs uppercase font-bold text-slate-400 tracking-wider">Total Stolen / Damages:</span>
+            <span id="total-financial-loss" class="text-xl font-extrabold text-emerald-400 font-mono">$0.00</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 4: EVIDENCE LOCKER & TIMELINE -->
+    <section id="tab-evidence" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Evidence Locker -->
+        <div class="lg:col-span-6 glass-panel p-6 space-y-4">
+          <div class="border-b border-slate-800 pb-3">
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-box-archive text-amber-400"></i>
+              <span>Digital Evidence Locker</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Attach screenshots, bank statements, chat logs, call recordings, or transaction receipts.
+            </p>
+          </div>
+
+          <!-- Dropzone -->
+          <div id="evidence-upload-dropzone" class="border-2 border-dashed border-slate-700 hover:border-cyan-500/60 rounded-xl p-6 text-center cursor-pointer transition-colors bg-slate-950/40">
+            <i class="fa-solid fa-cloud-arrow-up text-3xl text-cyan-400 mb-2"></i>
+            <h4 class="text-xs font-bold text-slate-200">Click or Drag Files Here to Attach Evidence</h4>
+            <p class="text-[11px] text-slate-500 mt-1">Supports PNG, JPG, PDF, TXT, MP3, WAV (Max 50MB)</p>
+            <input type="file" id="evidence-file-input" class="hidden" multiple>
+          </div>
+
+          <div id="evidence-files-list" class="space-y-2">
+            <!-- Files listed here -->
+          </div>
+        </div>
+
+        <!-- Incident Timeline -->
+        <div class="lg:col-span-6 glass-panel p-6 space-y-4">
+          <div class="border-b border-slate-800 pb-3">
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-timeline text-indigo-400"></i>
+              <span>Chronological Incident Timeline</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Automated timestamp progression extracted from narrative & entities.
+            </p>
+          </div>
+
+          <div id="incident-timeline-list" class="space-y-4 pt-2">
+            <!-- Timeline items rendered here -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 5: REGULATORY ROUTING MATRIX -->
+    <section id="tab-agency" class="tab-panel hidden space-y-6">
+      <div class="glass-panel p-6 space-y-6">
+        <div class="border-b border-slate-800 pb-4">
+          <h3 class="text-lg font-extrabold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-landmark text-purple-400"></i>
+            <span>Statutory Jurisdiction & Agency Recommendation Matrix</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Based on the zero-shot classified fraud primitives, the system has evaluated statutory jurisdiction for key federal and state regulatory reporting bodies.
+          </p>
+        </div>
+
+        <div id="agency-routing-matrix" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Agency cards rendered here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: FORMAL AFFIDAVIT & EXPORTER -->
+    <section id="tab-affidavit" class="tab-panel hidden space-y-6">
+      <div class="glass-panel p-6 space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h3 class="text-lg font-extrabold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-file-pdf text-rose-400"></i>
+              <span>Sworn Complaint Affidavit Document</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Pre-formatted legal complaint statement complete with statutory citations, loss breakdown, and perpetrator metadata ready for CFPB, FTC, IC3, or Bank dispute filing.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="copy-affidavit-btn" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors flex items-center space-x-1.5">
+              <i class="fa-solid fa-copy text-cyan-400"></i>
+              <span>Copy Text</span>
+            </button>
+            <button id="print-affidavit-btn" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg transition-colors flex items-center space-x-1.5">
+              <i class="fa-solid fa-print"></i>
+              <span>Print / Save PDF</span>
+            </button>
+            <button id="export-json-btn" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-purple-600 hover:bg-purple-500 text-white shadow-lg transition-colors flex items-center space-x-1.5">
+              <i class="fa-solid fa-download"></i>
+              <span>Export Case JSON</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="affidavit-preview-container" class="w-full">
+          <!-- Sworn Affidavit document rendered here -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 border-t border-slate-800/80 py-6 px-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <strong class="text-slate-400">Consumer Fraud Complaint Assistant</strong> &copy; 2026 | Powered by Pretrained NLI Model Zero-Shot Generalization
+      </div>
+      <div class="flex items-center space-x-4 text-slate-400">
+        <span>EFTA Reg E</span> • <span>TILA Reg Z</span> • <span>FTC Act Sec 5</span> • <span>18 U.S.C. 1030</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/zeroShotEngine.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/evalRunner.js"></script>
+</body>
+</html>
