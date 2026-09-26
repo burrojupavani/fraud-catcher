@@ -1134,6 +1134,28 @@ I declare that the information provided above is true and accurate to the best o
     return this.evidenceExtractor.evaluateFactConflicts(field, narrativeValue, evidenceValue);
   }
 
+  // Phase 6C Evidence OCR Engine Delegates
+  async processEvidenceFile(fileOrItem, textPayloadOverride = null) {
+    if (!this.evidenceOcrEngine) {
+      this.evidenceOcrEngine = new EvidenceOcrEngine(this.evidenceExtractor, this.evidenceRegistry);
+    }
+    return await this.evidenceOcrEngine.processEvidenceFile(fileOrItem, textPayloadOverride);
+  }
+
+  confirmOcrFact(evidenceId, field, confirmedValue = null) {
+    if (!this.evidenceOcrEngine) {
+      this.evidenceOcrEngine = new EvidenceOcrEngine(this.evidenceExtractor, this.evidenceRegistry);
+    }
+    return this.evidenceOcrEngine.confirmFact(evidenceId, field, confirmedValue);
+  }
+
+  evaluateOcrConflicts(narrativeRecord, evidenceId) {
+    if (!this.evidenceOcrEngine) {
+      this.evidenceOcrEngine = new EvidenceOcrEngine(this.evidenceExtractor, this.evidenceRegistry);
+    }
+    return this.evidenceOcrEngine.evaluateConflicts(narrativeRecord, evidenceId);
+  }
+
   getEmptyAnalysisResult() {
     return {
       classification_status: "AWAITING_INPUT",
