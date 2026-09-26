@@ -476,8 +476,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       `;
     }
 
-    // Regenerate Formal Complaint Document
+    // Regenerate Formal Complaint Document & Phase 5 Indian Routing
     state.analysisResult.formal_complaint_doc = window.zeroShotEngine.generateFormalComplaintDocument(rec, state.completionFields, state.analysisResult.evidence_map);
+    state.analysisResult.indian_routing = window.zeroShotEngine.evaluateIndianComplaintRouting(rec, state.completionFields);
+    renderAgencyRouting(state.analysisResult);
     renderAffidavitPreview();
   }
 
@@ -550,17 +552,140 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Render Agency Routing Matrix Notice
+  // Render Agency Routing Matrix (Phase 5 Verified Indian Complaint Routing)
   function renderAgencyRouting(result) {
     const container = document.getElementById('agency-routing-matrix');
     if (!container) return;
-    container.innerHTML = `
-      <div class="col-span-full p-6 rounded-xl bg-slate-900/90 border border-slate-800 text-center space-y-2">
-        <i class="fa-solid fa-landmark text-3xl text-purple-400 mb-1"></i>
-        <h4 class="text-base font-bold text-slate-200">Regulatory Routing Notice</h4>
-        <p class="text-xs text-slate-400 font-mono">Regulatory routing: Not yet evaluated.</p>
+
+    const routing = result.indian_routing || window.zeroShotEngine.evaluateIndianComplaintRouting(result.structured_case_record, state.completionFields);
+
+    if (!routing || routing.routing_status === "BENIGN_NO_ROUTING") {
+      container.innerHTML = `
+        <div class="col-span-full p-6 rounded-xl bg-slate-900 border border-slate-800 text-center space-y-2">
+          <i class="fa-solid fa-circle-info text-3xl text-slate-500 mb-1"></i>
+          <h4 class="text-base font-bold text-slate-200">No Fraud-Specific Routing Required</h4>
+          <p class="text-xs text-slate-400">Based on the submitted narrative, no active consumer dispute or financial cyber fraud indicators were detected.</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+
+    // Primary Pathway Card
+    if (routing.primary_pathway) {
+      const p = routing.primary_pathway;
+      html += `
+        <div class="col-span-full p-6 rounded-xl bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border-2 border-indigo-500/50 shadow-xl space-y-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-indigo-500/30 pb-3">
+            <div>
+              <span class="px-2.5 py-1 text-[10px] font-extrabold font-mono rounded uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">PRIMARY RECOMMENDED PATHWAY</span>
+              <h4 class="text-lg font-bold text-white mt-1 flex items-center space-x-2">
+                <i class="fa-solid fa-shield-halved text-indigo-400"></i>
+                <span>${p.name}</span>
+              </h4>
+              <p class="text-xs text-slate-400 font-medium">${p.official_source}</p>
+            </div>
+            <a href="${p.official_url}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-lg flex items-center space-x-2">
+              <span>Visit Official Portal</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+            </a>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800 text-slate-300 leading-relaxed">
+              <strong class="text-indigo-300 font-bold block mb-1"><i class="fa-solid fa-circle-question mr-1"></i> WHY THIS PATHWAY WAS SUGGESTED:</strong>
+              ${p.reason}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+              <div class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 space-y-1">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block"><i class="fa-solid fa-phone text-emerald-400 mr-1"></i> Official Contact / Helpline:</span>
+                <p class="text-xs font-mono font-bold text-emerald-300">${p.official_contact}</p>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-900/80 border border-slate-800 space-y-1">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block"><i class="fa-solid fa-link text-cyan-400 mr-1"></i> Verified Filing Link:</span>
+                <p class="text-xs font-mono text-cyan-300 truncate">${p.official_url}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else if (routing.routing_status === "INSUFFICIENT_INFORMATION") {
+      html += `
+        <div class="col-span-full p-6 rounded-xl bg-amber-950/30 border border-amber-500/40 space-y-2">
+          <div class="flex items-center space-x-2 text-amber-300 font-bold text-sm">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Insufficient Case Facts for Specific Financial Fraud Routing</span>
+          </div>
+          <p class="text-xs text-amber-200/80">The narrative lacks confirmed financial transaction details (amount, payment method). General guidance pathways are listed below.</p>
+        </div>
+      `;
+    }
+
+    // Secondary Pathways
+    if (routing.secondary_pathways && routing.secondary_pathways.length > 0) {
+      html += `<div class="col-span-full pt-2"><h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Secondary / Contextual Official Pathways</h4></div>`;
+      routing.secondary_pathways.forEach(sec => {
+        html += `
+          <div class="p-5 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="px-2 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-800 text-slate-300 uppercase">CONTEXTUAL PATHWAY</span>
+                <h5 class="text-sm font-bold text-slate-200 mt-1">${sec.name}</h5>
+                <p class="text-[11px] text-slate-400">${sec.official_source}</p>
+              </div>
+              <a href="${sec.official_url}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 text-xs font-bold flex items-center space-x-1">
+                <span>Portal</span>
+                <i class="fa-solid fa-external-link text-[10px]"></i>
+              </a>
+            </div>
+            <p class="text-xs text-slate-400 leading-snug p-2.5 rounded bg-slate-950 border border-slate-800/80">${sec.reason}</p>
+            <div class="text-[11px] font-mono text-emerald-400"><i class="fa-solid fa-phone mr-1"></i>${sec.official_contact}</div>
+          </div>
+        `;
+      });
+    }
+
+    // Required Information Checklist (Available vs Missing)
+    if (routing.required_information && routing.required_information.length > 0) {
+      html += `
+        <div class="col-span-full p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-2">
+            <i class="fa-solid fa-list-check text-cyan-400"></i>
+            <span>Filing Parameter Availability Checklist</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+      `;
+      routing.required_information.forEach(item => {
+        const isAvail = item.status === "AVAILABLE";
+        html += `
+          <div class="p-2.5 rounded-lg border text-xs flex items-center justify-between ${isAvail ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200' : 'bg-slate-950 border-slate-800 text-slate-400'}">
+            <div>
+              <div class="font-bold text-[11px]">${item.field}</div>
+              <div class="text-[10px] font-mono ${isAvail ? 'text-emerald-300' : 'text-slate-500'}">${item.value}</div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold ${isAvail ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-500'}">${item.status}</span>
+          </div>
+        `;
+      });
+      html += `</div></div>`;
+    }
+
+    // Safety Disclaimers Box
+    html += `
+      <div class="col-span-full p-4 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400 space-y-1.5">
+        <div class="font-bold text-amber-400 flex items-center space-x-1.5">
+          <i class="fa-solid fa-shield-triangle-exclamation"></i>
+          <span>Official Filing Disclaimers & Safety Notice</span>
+        </div>
+        <ul class="list-disc list-inside space-y-1 text-slate-400">
+          ${(routing.limitations || []).map(l => `<li>${l}</li>`).join('')}
+        </ul>
       </div>
     `;
+
+    container.innerHTML = html;
   }
 
   // Financial Calculator Initializer
