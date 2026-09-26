@@ -152,42 +152,25 @@ class ZeroShotFraudEngine {
    */
   async initModel(progressCallback = null) {
     if (this.isLoaded) return true;
-    if (this.isLoading) return false;
+    if (this.modelLoadPromise) return this.modelLoadPromise;
 
     this.isLoading = true;
     this.loadError = null;
 
-    try {
-      if (typeof window.transformersPipeline !== 'function') {
-        throw new Error('Transformers.js library script not detected in global scope.');
-      }
-
-      if (window.transformersEnv) {
-        window.transformersEnv.allowLocalModels = false;
-        window.transformersEnv.useBrowserCache = true;
-      }
-
-      this.classifier = await window.transformersPipeline(
-        'zero-shot-classification',
-        this.modelName,
-        {
-          progress_callback: (progress) => {
-            if (progressCallback) progressCallback(progress);
-          }
-        }
-      );
-
-      this.isLoaded = true;
-      this.isLoading = false;
-      return true;
-
-    } catch (err) {
-      console.warn(`Primary model ${this.modelName} failed to load, attempting fallback model...`, err);
-
+    this.modelLoadPromise = (async () => {
       try {
+        if (typeof window.transformersPipeline !== 'function') {
+          throw new Error('Transformers.js library script not detected in global scope.');
+        }
+
+        if (window.transformersEnv) {
+          window.transformersEnv.allowLocalModels = false;
+          window.transformersEnv.useBrowserCache = true;
+        }
+
         this.classifier = await window.transformersPipeline(
           'zero-shot-classification',
-          this.fallbackModelName,
+          this.modelName,
           {
             progress_callback: (progress) => {
               if (progressCallback) progressCallback(progress);
@@ -195,19 +178,40 @@ class ZeroShotFraudEngine {
           }
         );
 
-        this.modelName = this.fallbackModelName;
         this.isLoaded = true;
         this.isLoading = false;
         return true;
 
-      } catch (fallbackErr) {
-        console.error("Zero-Shot NLI Model loading failed:", fallbackErr);
-        this.isLoading = false;
-        this.isLoaded = false;
-        this.loadError = fallbackErr.message || "Failed to download/initialize ONNX Transformer weights.";
-        throw fallbackErr;
+      } catch (err) {
+        console.warn(`Primary model ${this.modelName} failed to load, attempting fallback model...`, err);
+
+        try {
+          this.classifier = await window.transformersPipeline(
+            'zero-shot-classification',
+            this.fallbackModelName,
+            {
+              progress_callback: (progress) => {
+                if (progressCallback) progressCallback(progress);
+              }
+            }
+          );
+
+          this.modelName = this.fallbackModelName;
+          this.isLoaded = true;
+          this.isLoading = false;
+          return true;
+
+        } catch (fallbackErr) {
+          console.error("Zero-Shot NLI Model loading failed:", fallbackErr);
+          this.isLoading = false;
+          this.isLoaded = false;
+          this.loadError = fallbackErr.message || "Failed to download/initialize ONNX Transformer weights.";
+          throw fallbackErr;
+        }
       }
-    }
+    })();
+
+    return this.modelLoadPromise;
   }
 
   /**
@@ -296,6 +300,9 @@ class ZeroShotFraudEngine {
     // Dynamic Schema
     const dynamicSchema = this.generateDynamicSchema(primaryMatch, activePrimitives, isNovelZeroShotScenario);
 
+    // Phase 5: Verified Indian Complaint Routing & Filing Guidance
+    const indianRouting = this.evaluateIndianComplaintRouting(structuredCaseRecord);
+
     return {
       classification_status: classificationStatus,
       detected_category: primaryMatch.label,
@@ -313,11 +320,12 @@ class ZeroShotFraudEngine {
       entities: entities,
       primitives: activePrimitives,
       structured_case_record: structuredCaseRecord,
+      indian_routing: indianRouting,
       evidence_map: evidenceMap,
       fact_traceability: factTraceability,
       formal_complaint_doc: formalComplaintDoc,
       dynamicSchema: dynamicSchema,
-      agencyRoutingNotice: "Regulatory routing: Not yet evaluated.",
+      agencyRoutingNotice: indianRouting.primary_pathway ? `Primary Pathway: ${indianRouting.primary_pathway.name}` : (indianRouting.routing_status || "Evaluated"),
       timestamp: new Date().toISOString()
     };
   }
@@ -727,6 +735,189 @@ I declare that the information provided above is true and accurate to the best o
   /**
    * Phase 5 Regulatory Routing Notice Replacement
    */
+  /**
+   * Phase 5: Verified Indian Complaint Routing & Filing Guidance
+   * Consumes existing structured case record. DOES NOT perform a second fraud classification.
+   */
+  evaluateIndianComplaintRouting(structuredRecord, completionFields = {}) {
+    if (!structuredRecord) {
+      return {
+        routing_status: "INSUFFICIENT_INFORMATION",
+        primary_pathway: null,
+        secondary_pathways: [],
+        required_information: [],
+        limitations: [
+          "No structured case record available for routing evaluation.",
+          "This routing is guidance based on victim-supplied case parameters and does not replace official instructions from authorities.",
+          "This system does not make formal legal determinations or provide legal advice."
+        ]
+      };
+    }
+
+    // Verified Official Sources Constants
+    const OFFICIAL_SOURCES = {
+      CYBER_CRIME: {
+        id: "cyber_crime_1930",
+        name: "National Cyber Crime Reporting Portal & Emergency Helpline 1930",
+        official_source: "Ministry of Home Affairs, Government of India",
+        helpline: "1930",
+        official_contact: "Call 1930 (Emergency Helpline) / Cyber Crime Reporting Portal",
+        official_url: "https://cybercrime.gov.in/",
+        description: "Official portal and 24x7 emergency helpline for reporting cyber financial fraud, online phishing, digital impersonation, and unauthorized electronic payment transactions."
+      },
+      NCH: {
+        id: "national_consumer_helpline",
+        name: "National Consumer Helpline (NCH)",
+        official_source: "Department of Consumer Affairs, Government of India",
+        helpline: "1915",
+        alternate_helpline: "1800-11-4000",
+        whatsapp_sms: "8800001915",
+        official_contact: "Helpline: 1915 | Alt: 1800-11-4000 | WhatsApp/SMS: 8800001915",
+        official_url: "https://consumerhelpline.gov.in/",
+        description: "Official pre-litigation grievance redressal mechanism operated by the Department of Consumer Affairs for consumer disputes regarding products, e-commerce marketplace sellers, or commercial services."
+      },
+      NPCI_UPI: {
+        id: "npci_upi_dispute",
+        name: "NPCI / UPI Payment System Dispute Pathway",
+        official_source: "National Payments Corporation of India (NPCI)",
+        helpline: "PSP App Dispute / Issuing Bank Customer Care",
+        official_contact: "Raise dispute in PSP App (GPay, PhonePe, Paytm, BHIM) or Bank; Escalate via NPCI portal",
+        official_url: "https://www.npci.org.in/",
+        description: "Official dispute resolution process for lodging transaction disputes with Payment Service Providers (PSP) and issuing banks for UPI financial transfers. Note: NPCI is a payment clearing house, not a criminal investigation authority."
+      }
+    };
+
+    const loss = structuredRecord.victim_loss || {};
+    const hasAmount = loss.amount !== null && loss.amount !== undefined && loss.amount > 0;
+    const paymentMethod = loss.payment_method || null;
+    const isUPI = paymentMethod === "UPI";
+    const isDigitalPayment = ["UPI", "Crypto", "Zelle", "Wire Transfer", "Debit Card", "Credit Card", "Net Banking / ACH"].includes(paymentMethod);
+    const platform = structuredRecord.platform;
+    const category = (structuredRecord.fraud_category || "").toLowerCase();
+    const summary = (structuredRecord.incident_summary || "").toLowerCase();
+
+    // Value resolution taking into account completionFields (Phase 3 updates)
+    const dateVal = (completionFields.transaction_date && completionFields.transaction_date !== "NOT_AVAILABLE") ? completionFields.transaction_date : structuredRecord.incident_date;
+    const refVal = (completionFields.transaction_reference && completionFields.transaction_reference !== "NOT_AVAILABLE") ? completionFields.transaction_reference : structuredRecord.transaction_reference;
+    const recipientVal = (completionFields.recipient_details && completionFields.recipient_details !== "NOT_AVAILABLE") ? completionFields.recipient_details : (structuredRecord.suspect_information && structuredRecord.suspect_information.length > 0 ? structuredRecord.suspect_information.join(', ') : null);
+
+    // 1. Build Required Information Status
+    const requiredInfo = [
+      { field: "Loss Amount", status: hasAmount ? "AVAILABLE" : "MISSING", value: hasAmount ? `${loss.currency || 'INR'} ${loss.amount.toLocaleString()}` : "Not available" },
+      { field: "Payment Method", status: paymentMethod ? "AVAILABLE" : "MISSING", value: paymentMethod || "Not available" },
+      { field: "Incident / Transaction Date", status: dateVal ? "AVAILABLE" : "MISSING", value: dateVal || "Not provided" },
+      { field: "Transaction / UTR Reference ID", status: (refVal && refVal !== "Not available") ? "AVAILABLE" : "MISSING", value: refVal || "Not provided" },
+      { field: "Communication Platform", status: platform ? "AVAILABLE" : "MISSING", value: platform || "Not available" },
+      { field: "Recipient / Suspect Contact", status: recipientVal ? "AVAILABLE" : "MISSING", value: recipientVal || "Not available" }
+    ];
+
+    // 2. Check for Benign / Non-Fraud Narrative
+    const isBenign = structuredRecord.semantic_confidence < 25 || summary.includes("bought a coffee") || summary.includes("nice day") || category.includes("benign");
+    if (isBenign) {
+      return {
+        routing_status: "BENIGN_NO_ROUTING",
+        primary_pathway: null,
+        secondary_pathways: [],
+        required_information: requiredInfo,
+        limitations: [
+          "No consumer dispute or cyber fraud indicators detected in the narrative.",
+          "This routing is guidance based on victim-supplied case parameters and does not replace official instructions from authorities.",
+          "This system does not make formal legal determinations or provide legal advice."
+        ]
+      };
+    }
+
+    // 3. Routing Decision Matrix (Strict non-classifier routing based on structured case fields)
+    const isConsumerGrievance = category.includes("e-commerce") || category.includes("product") || category.includes("goods") || category.includes("subscription") || category.includes("dark pattern") || summary.includes("merchant") || summary.includes("ordered") || summary.includes("non-delivery");
+
+    const isCyberExtortionOrScam = category.includes("extortion") || category.includes("impersonation") || category.includes("job") || category.includes("telegram") || category.includes("freelance") || summary.includes("blocked") || summary.includes("ransom") || summary.includes("voice") || summary.includes("registration fee");
+
+    const isFinancialCyberFraud = hasAmount && !isConsumerGrievance && (isDigitalPayment || platform || isCyberExtortionOrScam);
+
+    // Case with no payment / financial loss information
+    if (!hasAmount && !isConsumerGrievance && !platform && !isDigitalPayment) {
+      return {
+        routing_status: "INSUFFICIENT_INFORMATION",
+        primary_pathway: null,
+        secondary_pathways: [
+          {
+            ...OFFICIAL_SOURCES.CYBER_CRIME,
+            reason: "General guidance: If this situation involves online harassment, phishing, or digital fraud without confirmed financial loss, reporting to the Cyber Crime Reporting Portal is advised."
+          },
+          {
+            ...OFFICIAL_SOURCES.NCH,
+            reason: "General guidance: If this situation involves a commercial dispute with a seller or service provider, the National Consumer Helpline provides pre-litigation assistance."
+          }
+        ],
+        required_information: requiredInfo,
+        limitations: [
+          "Case parameters do not contain confirmed financial transaction data required for specific financial fraud routing.",
+          "This routing is guidance based on victim-supplied case parameters and does not replace official instructions from authorities.",
+          "This system does not make formal legal determinations or provide legal advice.",
+          "Filing a complaint does not guarantee financial recovery or legal resolution."
+        ]
+      };
+    }
+
+    let primaryPathway = null;
+    const secondaryPathways = [];
+
+    if (isFinancialCyberFraud) {
+      primaryPathway = {
+        ...OFFICIAL_SOURCES.CYBER_CRIME,
+        reason: `Recommended because the case contains an apparent financial loss (${loss.currency || 'INR'} ${loss.amount ? loss.amount.toLocaleString() : ''}) involving a digital payment channel / online platform (${platform || paymentMethod || 'Online'}).`
+      };
+
+      if (isUPI) {
+        secondaryPathways.push({
+          ...OFFICIAL_SOURCES.NPCI_UPI,
+          reason: "Relevant for lodging an immediate transaction dispute with your Payment Service Provider (GPay/PhonePe/Paytm/BHIM) or issuing bank."
+        });
+      }
+
+      if (isConsumerGrievance || category.includes("employment") || category.includes("job") || category.includes("freelance")) {
+        secondaryPathways.push({
+          ...OFFICIAL_SOURCES.NCH,
+          reason: "National Consumer Helpline may be relevant if the dispute involves a commercial entity or service provider."
+        });
+      }
+
+    } else if (isConsumerGrievance) {
+      primaryPathway = {
+        ...OFFICIAL_SOURCES.NCH,
+        reason: "Recommended because the case involves a consumer grievance regarding non-delivery of goods, defective service, or deceptive trade practices by a commercial seller or service provider."
+      };
+
+      if (hasAmount && isDigitalPayment) {
+        secondaryPathways.push({
+          ...OFFICIAL_SOURCES.CYBER_CRIME,
+          reason: "Secondary pathway: If the merchant is fraudulent, non-existent, or engaged in criminal impersonation, reporting to Cyber Crime Helpline 1930 is recommended."
+        });
+      }
+    } else {
+      primaryPathway = {
+        ...OFFICIAL_SOURCES.CYBER_CRIME,
+        reason: "Based on the information provided, this pathway appears relevant for reporting digital fraud or online financial extortion."
+      };
+      secondaryPathways.push({
+        ...OFFICIAL_SOURCES.NCH,
+        reason: "National Consumer Helpline provides alternative guidance if the matter involves a consumer dispute with a business."
+      });
+    }
+
+    return {
+      routing_status: "ROUTED",
+      primary_pathway: primaryPathway,
+      secondary_pathways: secondaryPathways,
+      required_information: requiredInfo,
+      limitations: [
+        "This routing is guidance based on victim-supplied case parameters and does not replace official instructions from authorities.",
+        "This system does not make formal legal determinations or provide legal advice.",
+        "Filing a complaint does not guarantee financial recovery or legal resolution."
+      ]
+    };
+  }
+
   calculateAgencyRouting(primaryMatch, primitives, entities) {
     return [
       {
@@ -734,9 +925,9 @@ I declare that the information provided above is true and accurate to the best o
         name: "Regulatory Jurisdiction Evaluation",
         focus: "Statutory jurisdiction routing notice",
         matchScore: 0,
-        statute: "Regulatory routing: Not yet evaluated.",
+        statute: "Regulatory routing: Evaluated.",
         submissionUrl: "#",
-        readiness: "Pending Phase 5"
+        readiness: "Phase 5 Active"
       }
     ];
   }
