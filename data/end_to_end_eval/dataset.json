@@ -1,0 +1,107 @@
+{
+  "phase_6_cases": [
+    {
+      "id": "CASE_01",
+      "name": "UPI Fake Job Scam",
+      "type": "employment_fraud",
+      "narrative": "I joined a Telegram group where someone promised me a software job. They asked me to pay ₹8,000 as a registration fee through UPI. I sent the money and shared my Aadhaar number and bank account details. After that they blocked me.",
+      "expected": {
+        "fraud_category": "Fake Job Offer & Registration Fee Extortion",
+        "amount": 8000,
+        "currency": "INR",
+        "payment_method": "UPI",
+        "platform": "Telegram",
+        "personal_info": ["Aadhaar number", "Bank account details"],
+        "current_status": "Blocked after payment",
+        "readiness": "PARTIALLY_READY",
+        "primary_pathway": "National Cyber Crime Reporting Portal & Emergency Helpline 1930"
+      }
+    },
+    {
+      "id": "CASE_02",
+      "name": "Fake E-Commerce Seller",
+      "type": "ecommerce_non_delivery",
+      "narrative": "On September 5, 2026, I purchased a camera online for $450 via debit card. I received an order receipt and tracking number showing delivered to a different state. The merchant never shipped the item and stopped responding.",
+      "expected": {
+        "fraud_category": "E-Commerce Non-Delivery & Marketplace Seller Scam",
+        "amount": 450,
+        "currency": "USD",
+        "payment_method": "Debit Card",
+        "platform": "Web Portal / Site",
+        "readiness": "READY",
+        "primary_pathway": "National Consumer Helpline (NCH)"
+      }
+    },
+    {
+      "id": "CASE_03",
+      "name": "Deceptive Subscription Trap",
+      "type": "dark_pattern_subscription",
+      "narrative": "I signed up for a $1 trial of an online service. They automatically enrolled me into a $99/month recurring plan without clear disclosure and hid the cancellation button.",
+      "expected": {
+        "fraud_category": "Algorithmic Dark Pattern & Hidden Subscription Loophole",
+        "amount": 99,
+        "currency": "USD",
+        "payment_method": "Credit Card",
+        "platform": "Web Portal / Site",
+        "readiness": "PARTIALLY_READY",
+        "primary_pathway": "National Consumer Helpline (NCH)"
+      }
+    },
+    {
+      "id": "CASE_04",
+      "name": "Unseen Freelance Gaming Item Scam",
+      "type": "novel_unseen_scenario",
+      "narrative": "A seller on a gaming forum offered an exclusive digital item. After I transferred ₹12,000 via Net Banking, the seller deleted their profile and disappeared without sending the activation code.",
+      "expected": {
+        "amount": 12000,
+        "currency": "INR",
+        "payment_method": "Net Banking / ACH",
+        "readiness": "PARTIALLY_READY",
+        "primary_pathway": "National Cyber Crime Reporting Portal & Emergency Helpline 1930"
+      }
+    },
+    {
+      "id": "CASE_05",
+      "name": "Completely Benign Non-Fraud Narrative",
+      "type": "benign_narrative",
+      "narrative": "I went to the library yesterday and borrowed two books.",
+      "expected": {
+        "amount": null,
+        "readiness": "INCOMPLETE",
+        "routing_status": "BENIGN_NO_ROUTING"
+      }
+    }
+  ],
+  "adversarial_failure_cases": [
+    {
+      "id": "FAIL_A",
+      "name": "Very Short Input",
+      "narrative": "Someone scammed me.",
+      "expected": "Insufficient information / low match"
+    },
+    {
+      "id": "FAIL_B",
+      "name": "Money Mentioned Without Context",
+      "narrative": "I lost ₹5,000.",
+      "expected": "Amount extracted (₹5,000), no invented fraud mechanism"
+    },
+    {
+      "id": "FAIL_C",
+      "name": "Detailed Story Missing Transaction ID",
+      "narrative": "I transferred ₹3,500 via UPI for a freelance design certificate scam, but I don't have the UTR transaction ID or date with me right now.",
+      "expected": "Transaction ID remains unavailable"
+    },
+    {
+      "id": "FAIL_D",
+      "name": "Story Containing Unrelated Birthday Date",
+      "narrative": "On June 1st I turned 25. Later someone stole ₹2,000 from my wallet via an online app.",
+      "expected": "Unrelated birthday date not assigned as transaction date"
+    },
+    {
+      "id": "FAIL_E",
+      "name": "Benign Narrative Input",
+      "narrative": "I went to the library yesterday and borrowed two books.",
+      "expected": "No fraud-specific complaint routing"
+    }
+  ]
+}
