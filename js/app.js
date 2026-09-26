@@ -60,6 +60,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     remote_access_support: {
       name: "Unseen 4: Fake Support Remote Access Session",
       text: "A pop-up appeared on my screen warning of a virus and listing a phone number. When I called, the support technician convinced me to install AnyDesk remote access software, then drained $2,800 from my online banking."
+    },
+    benign_library_text: {
+      name: "Non-Fraud: Benign Library Narrative",
+      text: "I went to the library yesterday and borrowed two books."
     }
   };
 
