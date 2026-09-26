@@ -1,0 +1,61 @@
+{
+  "notice": "SYNTHETIC_TEST_FIXTURE — Synthetic test fixtures for Phase 6C Evidence OCR & Verification evaluation. Contains NO real victim evidence, NO real personal data, and NO real bank receipts.",
+  "fixture_type": "SYNTHETIC_TEST_FIXTURE",
+  "ocr_fixtures": [
+    {
+      "id": "OCR_FIX_001",
+      "format": "PNG",
+      "filename": "synthetic_upi_screenshot.png",
+      "synthetic_text_payload": "UPI Payment Receipt\nAmount: ₹8,000\nUTR: UTR8877665544\nDate: 2026-09-22\nTo: merchant_scam@upi\nStatus: Success",
+      "expected_facts": {
+        "transaction_amount": 8000,
+        "transaction_reference": "UTR8877665544",
+        "transaction_date": "2026-09-22",
+        "recipient_details": "merchant_scam@upi"
+      },
+      "expected_status": "PROCESSED"
+    },
+    {
+      "id": "OCR_FIX_002",
+      "format": "JPG",
+      "filename": "synthetic_chat_screenshot.jpg",
+      "synthetic_text_payload": "Telegram Messenger Export\nSuspect: @crypto_job_scammer\nPhone: +919876543210\nDeposit required: $1,500\nDate: 2026-09-23",
+      "expected_facts": {
+        "transaction_amount": 1500,
+        "currency": "USD",
+        "username_or_handle": "@crypto_job_scammer",
+        "phone_number": "+919876543210",
+        "platform": "Telegram"
+      },
+      "expected_status": "PROCESSED"
+    },
+    {
+      "id": "OCR_FIX_003",
+      "format": "PDF",
+      "filename": "synthetic_bank_statement.pdf",
+      "synthetic_text_payload": "Bank Statement Extract\nDate: 2026-09-24\nDebit: ₹12,500\nRef: TXN998877\nMerchant: Fake Store Ltd",
+      "expected_facts": {
+        "transaction_amount": 12500,
+        "transaction_reference": "TXN998877",
+        "transaction_date": "2026-09-24"
+      },
+      "expected_status": "PROCESSED"
+    },
+    {
+      "id": "OCR_FIX_004",
+      "format": "EXE",
+      "filename": "malicious_binary.exe",
+      "synthetic_text_payload": null,
+      "expected_facts": {},
+      "expected_status": "UNSUPPORTED_FORMAT"
+    },
+    {
+      "id": "OCR_FIX_005",
+      "format": "PNG",
+      "filename": "corrupted_blur_image.png",
+      "synthetic_text_payload": "",
+      "expected_facts": {},
+      "expected_status": "OCR_FAILED"
+    }
+  ]
+}
