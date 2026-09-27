@@ -1,0 +1,32 @@
+{
+  "phase_10_metadata": {
+    "title": "Phase 10 Complete End-to-End Validation & Final Demo Verification Dataset",
+    "version": "10.0",
+    "date": "2026-09-27",
+    "data_origin": "SYNTHETIC_TEST_FIXTURE",
+    "disclaimer": "Synthetic test fixtures for complete end-to-end pipeline validation."
+  },
+  "synthetic_e2e_case": {
+    "id": "PHASE_10_SYNTHETIC_CASE",
+    "narrative": "I received a message on Telegram from a person claiming to be a recruiter. They offered me an online part-time job and asked me to pay ₹8,000 as a registration/security fee. I paid using UPI. After payment, they stopped responding and blocked me. I have a screenshot of the payment receipt showing ₹8,000 and UTR123456789012.",
+    "evidence": {
+      "evidence_id": "E10_01",
+      "type": "SCREENSHOT",
+      "filename": "telegram_upi_payment_receipt.png",
+      "text_payload": "Payment Successful!\nAmount: ₹8,000\nUTR: UTR123456789012\nDate: 2026-09-20\nTo: recruiter_job@upi\nPlatform: Telegram"
+    },
+    "expected": {
+      "category": "Fake Job Offer & Registration Fee Extortion",
+      "amount": 8000,
+      "currency": "INR",
+      "payment_method": "UPI",
+      "platform": "Telegram",
+      "utr": "UTR123456789012",
+      "initial_status": "UNVERIFIED",
+      "confirmed_status": "USER_CONFIRMED",
+      "readiness": "READY",
+      "primary_pathway": "National Cyber Crime Reporting Portal & Emergency Helpline 1930",
+      "portal_url": "https://cybercrime.gov.in/"
+    }
+  }
+}
