@@ -374,6 +374,60 @@ class ZeroShotFraudEngine {
     };
   }
 
+  getEmptyAnalysisResult() {
+    const defaultCandidate = {
+      id: "unspecified_intake",
+      label: "General Consumer Complaint Intake",
+      category: "Unspecified Consumer Issue",
+      hypothesis: "a general consumer inquiry or incomplete complaint statement",
+      requiredFields: [],
+      evidenceNeeded: ["Documentary evidence of transaction & communications"],
+      confidenceScore: 50,
+      rawScore: 0.50,
+      entailment: 0.50
+    };
+
+    const entities = {
+      dates: [],
+      amounts: [],
+      estimatedMaxLoss: 0,
+      phoneNumbers: [],
+      urls: [],
+      upiHandles: [],
+      cryptoAddresses: []
+    };
+
+    const structuredCaseRecord = {
+      fraud_type: "Unspecified Consumer Issue",
+      incident_date: null,
+      victim_loss: { amount: 0, currency: "INR", payment_method: null },
+      perpetrator_identifier: null,
+      platform: null,
+      promised_service_or_product: null,
+      personal_information_requested: [],
+      current_status: "Intake Pending",
+      complaint_readiness: "INCOMPLETE",
+      missing_information: ["transaction_date", "victim_loss.amount", "victim_loss.payment_method", "perpetrator_identifier"]
+    };
+
+    return {
+      status: "EMPTY_NARRATIVE",
+      detected_category: "General Consumer Complaint Intake",
+      primaryMatch: defaultCandidate,
+      candidate_scores: [defaultCandidate],
+      candidateScores: [defaultCandidate],
+      confidence: 0.50,
+      semantic_match_strength: 50,
+      entities: entities,
+      structured_case_record: structuredCaseRecord,
+      dynamicSchema: {
+        fields: [],
+        evidenceNeeded: defaultCandidate.evidenceNeeded,
+        customNotice: "Please enter your complaint story or select a test scenario above."
+      }
+    };
+  }
+
   /**
    * Genuine Zero-Shot Classification Engine
    * Evaluates Narrative against natural language candidate hypotheses using the NLI model.
