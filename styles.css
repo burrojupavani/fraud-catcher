@@ -79,13 +79,26 @@
   border-color: #cbd5e1 !important;
 }
 
-/* Force all headings, paragraphs, spans, labels, divs to BOLD BLACK in light mode */
+/* All Headings Forced to Pure Solid Black in Light Mode */
 [data-theme="light"] h1,
 [data-theme="light"] h2,
 [data-theme="light"] h3,
 [data-theme="light"] h4,
 [data-theme="light"] h5,
 [data-theme="light"] h6,
+[data-theme="light"] h1 *,
+[data-theme="light"] h2 *,
+[data-theme="light"] h3 *,
+[data-theme="light"] h4 *,
+[data-theme="light"] h5 *,
+[data-theme="light"] h6 *,
+[data-theme="light"] .gradient-text {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  font-weight: 900 !important;
+}
+
+/* Force all paragraphs, spans, labels, divs to BOLD BLACK in light mode */
 [data-theme="light"] p,
 [data-theme="light"] span,
 [data-theme="light"] label,
