@@ -1,0 +1,79 @@
+{
+  "phase_8_metadata": {
+    "title": "Phase 8 Production Demo Hardening, Security, UX & Final Validation Dataset",
+    "version": "8.0",
+    "date": "2026-09-27",
+    "data_origin": "SYNTHETIC_TEST_FIXTURE",
+    "disclaimer": "All narratives, names, accounts, amounts, transaction references, and phone numbers in this file are entirely synthetic test fixtures used solely for automated evaluation."
+  },
+  "security_privacy_fixtures": [
+    {
+      "id": "SEC_XSS_01",
+      "type": "MALICIOUS_INPUT_XSS",
+      "input_narrative": "I sent money to a fraudster <script>alert('xss_attack')</script> and clicked <img src=x onerror=alert('hack')>",
+      "expected": {
+        "sanitized_rendering": "I sent money to a fraudster &lt;script&gt;alert(&#039;xss_attack&#039;)&lt;/script&gt; and clicked &lt;img src=x onerror=alert(&#039;hack&#039;)&gt;",
+        "script_execution": false
+      }
+    },
+    {
+      "id": "SEC_PRIV_01",
+      "type": "SENSITIVE_DATA_MASKING",
+      "sensitive_payload": {
+        "aadhaar": "9988 7766 5544",
+        "bank_account": "1234567890123456",
+        "upi": "victim_secret@upi",
+        "phone": "+91 9876543210"
+      },
+      "expected": {
+        "masked_aadhaar": "XXXX-XXXX-5544",
+        "masked_bank": "XXXX-XXXX-3456",
+        "masked_upi": "v***t@upi",
+        "masked_phone": "+91 XXXX-XX3210"
+      }
+    },
+    {
+      "id": "SEC_FILE_01",
+      "type": "FILE_VALIDATION_MALICIOUS_FORMAT",
+      "filename": "malicious_payload.exe",
+      "size_bytes": 1024,
+      "expected": {
+        "status": "UNSUPPORTED_FORMAT",
+        "is_accepted": false
+      }
+    },
+    {
+      "id": "SEC_FILE_02",
+      "type": "FILE_VALIDATION_OVERSIZE",
+      "filename": "large_receipt.png",
+      "size_bytes": 15728640,
+      "expected": {
+        "status": "UNSUPPORTED_SIZE",
+        "is_accepted": false
+      }
+    },
+    {
+      "id": "SEC_FILE_03",
+      "type": "FILE_VALIDATION_VALID_IMAGE",
+      "filename": "valid_receipt.png",
+      "size_bytes": 524288,
+      "expected": {
+        "status": "ACCEPTED",
+        "is_accepted": true
+      }
+    }
+  ],
+  "lifecycle_fixtures": [
+    {
+      "id": "LIFE_01",
+      "filename": "bank_statement.pdf",
+      "text_payload": "Transfer of ₹12,000 to fraudster via UPI on 2026-09-15. UTR: UTR9900112233",
+      "expected_stages": [
+        "UPLOADED",
+        "PROCESSING",
+        "EXTRACTED",
+        "UNVERIFIED"
+      ]
+    }
+  ]
+}
