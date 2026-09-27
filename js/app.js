@@ -240,7 +240,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function runNarrativeAnalysis() {
-    const text = document.getElementById('narrative-input').value;
+    const narrativeInput = document.getElementById('narrative-input');
+    let text = narrativeInput ? narrativeInput.value.trim() : '';
+
+    if (!text) {
+      const defaultText = presetScenarios.employment_telegram_fee ? presetScenarios.employment_telegram_fee.text : "I sent ₹8,000 via UPI to a recruiter on Telegram for a job registration fee and was blocked.";
+      if (narrativeInput) narrativeInput.value = defaultText;
+      text = defaultText;
+      const charCount = document.getElementById('char-count');
+      if (charCount) charCount.textContent = defaultText.length;
+    }
+
     state.narrativeText = text;
     state.completionFields = {};
 
