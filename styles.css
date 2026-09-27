@@ -91,18 +91,15 @@
 [data-theme="light"] h3 *,
 [data-theme="light"] h4 *,
 [data-theme="light"] h5 *,
-[data-theme="light"] h6 *,
-[data-theme="light"] .gradient-text {
+[data-theme="light"] h6 * {
   color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
-  font-weight: 900 !important;
+  font-weight: 800 !important;
 }
 
-/* Force all paragraphs, spans, labels, divs to BOLD BLACK in light mode */
+/* Force paragraphs, spans, labels, list items to BOLD BLACK in light mode */
 [data-theme="light"] p,
 [data-theme="light"] span,
 [data-theme="light"] label,
-[data-theme="light"] div,
 [data-theme="light"] li,
 [data-theme="light"] option,
 [data-theme="light"] .text-white,
@@ -112,7 +109,7 @@
 [data-theme="light"] .text-slate-400,
 [data-theme="light"] .text-slate-500 {
   color: #000000 !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
 }
 
 /* Light mode category accents - Bold High Contrast Colors */
