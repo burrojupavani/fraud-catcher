@@ -125,7 +125,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tabPanels = document.querySelectorAll('.tab-panel');
 
     navButtons.forEach(b => {
-      if (b.getAttribute('data-tab') === targetTab) {
+      const isTarget = b.getAttribute('data-tab') === targetTab;
+      if (isTarget) {
         b.classList.add('active', 'text-cyan-400');
         b.classList.remove('text-slate-400');
       } else {
@@ -135,15 +136,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     tabPanels.forEach(panel => {
-      if (panel.id === `tab-${targetTab}`) {
+      const panelTab = panel.id.replace('tab-', '');
+      if (panelTab === targetTab || panel.id === `tab-${targetTab}`) {
         panel.classList.remove('hidden');
+        panel.style.display = 'block';
       } else {
         panel.classList.add('hidden');
+        panel.style.display = 'none';
       }
     });
 
     if (targetTab === 'sandbox' || targetTab === 'agency') {
-      setTimeout(renderCharts, 100);
+      setTimeout(() => {
+        if (typeof renderCharts === 'function') renderCharts();
+      }, 100);
     }
   }
   window.switchTab = switchTab;
@@ -173,6 +179,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Tab Navigation Handler
   function initNavigationTabs() {
+    const navButtons = document.querySelectorAll('.tab-btn');
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetTab = btn.getAttribute('data-tab');
+        switchTab(targetTab);
+      });
+    });
+
     document.addEventListener('click', (e) => {
       const tabTarget = e.target.closest('[data-tab]');
       if (tabTarget) {
