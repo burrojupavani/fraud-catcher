@@ -1,0 +1,37 @@
+{
+  "phase_9_metadata": {
+    "title": "Phase 9 Deployment & Real Demo Preparation Dataset",
+    "version": "9.0",
+    "date": "2026-09-27",
+    "data_origin": "SYNTHETIC_TEST_FIXTURE",
+    "disclaimer": "Synthetic test fixtures for production deployment & demo environment verification."
+  },
+  "deployment_checks": [
+    {
+      "id": "DEP_ASSETS_01",
+      "name": "Static Asset Availability",
+      "required_assets": [
+        "index.html",
+        "styles.css",
+        "hero_banner.jpg",
+        "js/zeroShotEngine.js",
+        "js/evidenceExtractor.js",
+        "js/evidenceOcrEngine.js",
+        "js/app.js",
+        "data/e2e_eval/dataset.json",
+        "data/phase8_eval/dataset.json"
+      ]
+    },
+    {
+      "id": "DEP_ENV_01",
+      "name": "Browser Runtime Capability",
+      "features": [
+        "LocalStorage",
+        "CanvasRenderingContext2D",
+        "FileReader",
+        "WebSockets",
+        "FetchAPI"
+      ]
+    }
+  ]
+}
