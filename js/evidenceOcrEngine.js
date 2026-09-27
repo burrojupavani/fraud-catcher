@@ -65,6 +65,27 @@ class EvidenceOcrEngine {
       }
     }
 
+    // Step 0: File size validation (10MB maximum limit)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    if (fileOrItem && fileOrItem.size && fileOrItem.size > MAX_FILE_SIZE) {
+      const report = {
+        evidence_id: evidenceId,
+        filename: filename,
+        format: format,
+        processing_status: "UNSUPPORTED_SIZE",
+        lifecycle_state: "UNSUPPORTED",
+        supported: false,
+        extraction_method: "NONE",
+        facts_extracted: 0,
+        extracted_facts: [],
+        verification_status: "UNVERIFIED",
+        conflicts_detected: false,
+        message: `File '${filename}' exceeds maximum allowed size limit of 10MB.`
+      };
+      this.qualityReports[evidenceId] = report;
+      return report;
+    }
+
     // Step 1: Format validation
     const isImage = this.supportedImageFormats.includes(format);
     const isDoc = this.supportedDocumentFormats.includes(format);
@@ -75,6 +96,7 @@ class EvidenceOcrEngine {
         filename: filename,
         format: format,
         processing_status: "UNSUPPORTED_FORMAT",
+        lifecycle_state: "UNSUPPORTED",
         supported: false,
         extraction_method: "NONE",
         facts_extracted: 0,
@@ -242,6 +264,35 @@ class EvidenceOcrEngine {
       processing_status: "NOT_FOUND",
       facts_extracted: 0
     };
+  }
+
+  removeEvidenceItem(evidenceId) {
+    if (this.qualityReports[evidenceId]) {
+      delete this.qualityReports[evidenceId];
+    }
+    Object.keys(this.factVerificationStates).forEach(key => {
+      if (key.startsWith(`${evidenceId}_`)) {
+        delete this.factVerificationStates[key];
+      }
+    });
+    if (this.registry) {
+      this.registry.removeEvidence(evidenceId);
+    }
+    return true;
+  }
+
+  static maskSensitiveData(text) {
+    if (!text || typeof text !== 'string') return text;
+    let masked = text;
+    // 12-digit Aadhaar: 1234 5678 9012 -> XXXX-XXXX-9012
+    masked = masked.replace(/\b\d{4}[\s\-]?\d{4}[\s\-]?(\d{4})\b/g, 'XXXX-XXXX-$1');
+    // 16-digit Bank Account / Card: 1234567890123456 -> XXXX-XXXX-3456
+    masked = masked.replace(/\b\d{12}(\d{4})\b/g, 'XXXX-XXXX-$1');
+    // UPI ID: victim@upi -> v***m@upi
+    masked = masked.replace(/\b([a-zA-Z0-9._%+-]{1,2})[a-zA-Z0-9._%+-]+(@[a-zA-Z0-9.-]+)\b/g, '$1***$2');
+    // Phone numbers: +91 9876543210 -> +91 XXXX-XX3210
+    masked = masked.replace(/\b(\+?\d{1,2}[\s\-]?)?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?(\d{4})\b/g, '+91 XXXX-XX$2');
+    return masked;
   }
 }
 
