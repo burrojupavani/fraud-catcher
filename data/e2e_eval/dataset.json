@@ -1,0 +1,119 @@
+{
+  "notice": "SYNTHETIC_TEST_FIXTURE — Synthetic evaluation dataset for Phase 7 End-to-End Case Validation & Demo Hardening. Contains NO real victim data and NO live personal transactions.",
+  "fixture_type": "SYNTHETIC_TEST_FIXTURE",
+  "phase_7_cases": [
+    {
+      "id": "CASE_1",
+      "name": "Complete Telegram Employment Scam",
+      "narrative": "I joined a Telegram group where someone promised me a software job. They asked me to pay ₹8,000 as a registration fee through UPI. I sent the money and shared my Aadhaar number and bank account details. After that they blocked me.",
+      "evidence": {
+        "evidence_id": "E701",
+        "type": "SCREENSHOT",
+        "filename": "telegram_upi_receipt.png",
+        "text_payload": "Payment Successful!\nAmount: ₹8,000\nUTR: UTR123456789012\nDate: 2026-09-20\nTo: merchant_job@upi\nSuspect: @fake_recruiter"
+      },
+      "user_confirmations": ["transaction_reference"],
+      "expected": {
+        "category": "Fake Job Offer & Registration Fee Extortion",
+        "amount": 8000,
+        "currency": "INR",
+        "payment_method": "UPI",
+        "platform": "Telegram",
+        "utr": "UTR123456789012",
+        "date": "2026-09-20",
+        "has_conflict": false,
+        "initial_verification_status": "UNVERIFIED",
+        "final_verification_status": "USER_CONFIRMED",
+        "readiness": "READY",
+        "primary_pathway": "National Cyber Crime Reporting Portal & Emergency Helpline 1930"
+      }
+    },
+    {
+      "id": "CASE_2",
+      "name": "Evidence Value Conflict (₹8,000 vs ₹7,500)",
+      "narrative": "I transferred ₹8,000 via UPI to a seller for a camera, but they never sent the product.",
+      "evidence": {
+        "evidence_id": "E702",
+        "type": "TRANSACTION_RECORD",
+        "filename": "payment_receipt.txt",
+        "text_payload": "Bank Transfer Alert: ₹7,500 debited for order #4455 via UPI on 2026-09-21. UTR: TXN778899"
+      },
+      "expected": {
+        "narrative_amount": 8000,
+        "evidence_amount": 7500,
+        "conflict_field": "transaction_amount",
+        "conflict_status": "CONFLICT",
+        "both_values_preserved": true
+      }
+    },
+    {
+      "id": "CASE_3",
+      "name": "Missing Evidence Case",
+      "narrative": "I paid ₹5,000 via UPI for an online course scam, but I don't have the transaction receipt screenshot right now.",
+      "evidence": null,
+      "expected": {
+        "amount": 5000,
+        "evidence_status": "MISSING",
+        "readiness": "PARTIALLY_READY"
+      }
+    },
+    {
+      "id": "CASE_4",
+      "name": "OCR Failure Handling",
+      "narrative": "I was scammed out of $300 online.",
+      "evidence": {
+        "evidence_id": "E704",
+        "type": "IMAGE",
+        "filename": "corrupted_blur.png",
+        "text_payload": ""
+      },
+      "expected": {
+        "processing_status": "OCR_FAILED",
+        "facts_extracted": 0,
+        "fabricated_facts": 0
+      }
+    },
+    {
+      "id": "CASE_5",
+      "name": "Explicit User Confirmation Boundary",
+      "narrative": "I lost ₹4,500 in a fake investment scheme.",
+      "evidence": {
+        "evidence_id": "E705",
+        "type": "TEXT",
+        "filename": "receipt.txt",
+        "text_payload": "Transfer of ₹4,500. UTR: UTR9988776655 on 2026-09-22"
+      },
+      "user_confirmations": ["transaction_reference"],
+      "expected": {
+        "utr": "UTR9988776655",
+        "initial_status": "UNVERIFIED",
+        "after_confirm_status": "USER_CONFIRMED"
+      }
+    },
+    {
+      "id": "CASE_6",
+      "name": "Novel Unseen Fraud Scenario",
+      "narrative": "I was lured into a DeFi liquidity pool drain scam where a malicious smart contract approved spending of 2.5 ETH without my explicit consent.",
+      "evidence": {
+        "evidence_id": "E706",
+        "type": "TEXT",
+        "filename": "etherscan_tx.txt",
+        "text_payload": "Transaction Hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+      },
+      "expected": {
+        "is_unseen": true,
+        "primary_pathway": "National Cyber Crime Reporting Portal & Emergency Helpline 1930"
+      }
+    },
+    {
+      "id": "CASE_7",
+      "name": "Clearly Benign Non-Fraud Narrative",
+      "narrative": "I went for a walk in the park today and bought a cup of coffee for ₹50.",
+      "evidence": null,
+      "expected": {
+        "amount": 50,
+        "routing_status": "BENIGN_NO_ROUTING"
+      }
+    }
+  ]
+}
