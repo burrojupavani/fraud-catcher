@@ -57,6 +57,12 @@ class EvidenceRegistry {
     return [...this.items];
   }
 
+  removeEvidence(evidenceId) {
+    this.items = this.items.filter(item => item.evidence_id !== evidenceId);
+    this.facts = this.facts.filter(fact => fact.source !== evidenceId && fact.source_evidence_id !== evidenceId);
+    return true;
+  }
+
   linkEvidenceFact(evidenceId, field, value) {
     const item = this.getEvidence(evidenceId);
     if (!item) {
@@ -103,8 +109,21 @@ class EvidenceRegistry {
   }
 
   getFacts(field = null) {
-    if (!field) return [...this.facts];
-    return this.facts.filter(f => f.field === field);
+    if (field) {
+      return this.facts.filter(f => f.field === field);
+    }
+    return [...this.facts];
+  }
+
+  getConflicts(field = null) {
+    if (field) {
+      return this.facts.filter(f => f.field === field && (f.status === "CONFLICT" || f.verification_status === "CONFLICT"));
+    }
+    return this.facts.filter(f => f.status === "CONFLICT" || f.verification_status === "CONFLICT");
+  }
+
+  getAllConflicts() {
+    return this.facts.filter(f => f.status === "CONFLICT" || f.verification_status === "CONFLICT");
   }
 
   getConflicts(field) {
@@ -491,6 +510,7 @@ class ZeroShotFraudEngine {
     else if (textLower.includes("email")) platform = "Email";
     else if (textLower.includes("instagram")) platform = "Instagram";
     else if (textLower.includes("facebook") || textLower.includes("marketplace")) platform = "Facebook Marketplace";
+    else if (textLower.includes("smart contract") || textLower.includes("defi")) platform = "Smart Contract / DeFi";
     else if (textLower.includes("website") || textLower.includes("dapp") || textLower.includes("domain")) platform = "Web Portal / Site";
 
     // 3. Promised Service / Product
@@ -601,7 +621,7 @@ class ZeroShotFraudEngine {
     const hasTxRef = (structuredRecord.transaction_reference && structuredRecord.transaction_reference !== "Not available") ||
                      (completionFields.transaction_reference && completionFields.transaction_reference !== "NOT_AVAILABLE");
     const hasPaymentScreenshot = (completionFields.evidence_attached && completionFields.evidence_attached.toLowerCase().includes('payment')) ||
-                                 victimAttachedItems.some(i => i.name.toLowerCase().includes('payment') || i.name.toLowerCase().includes('upi') || i.name.toLowerCase().includes('receipt'));
+                                 victimAttachedItems.some(i => (i.name || i.filename || "").toLowerCase().includes('payment') || (i.name || i.filename || "").toLowerCase().includes('upi') || (i.name || i.filename || "").toLowerCase().includes('receipt'));
 
     const financialEv = [];
     if (hasTxRef) financialEv.push(`Transaction Reference / UTR Record (${completionFields.transaction_reference || structuredRecord.transaction_reference})`);
@@ -610,7 +630,7 @@ class ZeroShotFraudEngine {
     // 2. Communication Evidence
     const hasChatScreenshot = textLower.includes("screenshot") ||
                               (completionFields.evidence_attached && completionFields.evidence_attached.toLowerCase().includes('chat')) ||
-                              victimAttachedItems.some(i => i.name.toLowerCase().includes('chat') || i.name.toLowerCase().includes('screenshot') || i.name.toLowerCase().includes('telegram'));
+                              victimAttachedItems.some(i => (i.name || i.filename || "").toLowerCase().includes('chat') || (i.name || i.filename || "").toLowerCase().includes('screenshot') || (i.name || i.filename || "").toLowerCase().includes('telegram'));
 
     const commEv = [];
     if (hasChatScreenshot) commEv.push(`${structuredRecord.platform || 'Platform'} chat screenshots`);
@@ -698,6 +718,14 @@ class ZeroShotFraudEngine {
         isLegalDetermination: false
       };
     }
+  }
+
+  determineComplaintReadiness(structuredRecord, completionFields = {}, evidenceMap = {}) {
+    return this.recalculateReadiness(structuredRecord, completionFields, evidenceMap);
+  }
+
+  generateFormalComplaintDoc(structuredRecord, completionFields = {}, evidenceMap = {}) {
+    return this.generateFormalComplaintDocument(structuredRecord, completionFields, evidenceMap);
   }
 
   /**
@@ -805,7 +833,7 @@ I declare that the information provided above is true and accurate to the best o
    * Entity Extraction Regex Pipeline
    */
   extractEntities(text) {
-    const monetaryRegex = /(\$|usd\s?|dollars?\s?|₹|inr\s?|rupees?\s?)(\d{1,3}(,\d{3})*(\.\d{2})?|\d+(\.\d{2})?)/gi;
+    const monetaryRegex = /(\$|usd\s?|dollars?\s?|₹|inr\s?|rupees?\s?)(\d{1,3}(,\d{3})*(\.\d+)?|\d+(\.\d+)?)|(\d+(\.\d+)?)\s*(eth|btc|usdt|sol|usdc)\b/gi;
     const phoneRegex = /(\+?\d{1,2}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g;
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
     const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/gi;
@@ -1154,6 +1182,20 @@ I declare that the information provided above is true and accurate to the best o
       this.evidenceOcrEngine = new EvidenceOcrEngine(this.evidenceExtractor, this.evidenceRegistry);
     }
     return this.evidenceOcrEngine.evaluateConflicts(narrativeRecord, evidenceId);
+  }
+
+  removeEvidenceItem(evidenceId) {
+    if (!this.evidenceOcrEngine) {
+      this.evidenceOcrEngine = new EvidenceOcrEngine(this.evidenceExtractor, this.evidenceRegistry);
+    }
+    return this.evidenceOcrEngine.removeEvidenceItem(evidenceId);
+  }
+
+  getQualityReport(evidenceId) {
+    if (!this.evidenceOcrEngine) {
+      this.evidenceOcrEngine = new EvidenceOcrEngine(this.evidenceExtractor, this.evidenceRegistry);
+    }
+    return this.evidenceOcrEngine.getQualityReport(evidenceId);
   }
 
   getEmptyAnalysisResult() {
