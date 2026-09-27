@@ -4,7 +4,7 @@
  * conflict preservation, fallback rules, and Phase 1-6B regression checks.
  */
 
-window.runPhase6COcrTests = async function() {
+window.runPhase6COcrTests = async function(options = {}) {
   console.log("=== STARTING PHASE 6C REAL EVIDENCE OCR & VERIFICATION TEST SUITE ===");
 
   const results = {
